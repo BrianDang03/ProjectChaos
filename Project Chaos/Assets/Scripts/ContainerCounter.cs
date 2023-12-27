@@ -1,9 +1,13 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-public class ClearCounter : BaseCounter
+public class ContainerCounter : BaseCounter
 {
+    public event EventHandler OnPlayerGrabObject;
+
     [SerializeField] private KitchenObjectSO kitchenObjectSO;
 
     public override void Interact(Player player)
@@ -32,6 +36,15 @@ public class ClearCounter : BaseCounter
                 //Player is not Carrying Anything
                 GetKitchenObject().SetKitchenObjectParent(player);
             }
+        }
+
+        if (!player.HasKitchenObject() && !HasKitchenObject())
+        {
+            //Playaer is not carrying anything
+            Transform kitchenObjectTransform = Instantiate(kitchenObjectSO.prefab);
+            kitchenObjectTransform.GetComponent<KitchenObject>().SetKitchenObjectParent(player);
+
+            OnPlayerGrabObject?.Invoke(this, EventArgs.Empty);
         }
     }
 }
