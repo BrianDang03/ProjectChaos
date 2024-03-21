@@ -18,12 +18,12 @@
        - [7b. StoveCounterSound.cs](README.md#7b-stovecountersoundcs)
      - [8. TrashCounter.cs](README.md#8-trashcountercs)
    - ScriptableObjects
-     - [AudioClipRefsSO.cs](README.md#1-audiocliprefssocs)
-     - [BurningRecipeSO.cs](README.md#2-burningrecipesocs)
-     - [CuttingRecipeSO.cs](README.md#3-cuttingrecipesocs)
-     - [FryingRecipeSO.cs](README.md#4-fryingrecipesocs)
-     - [KitchenObjectSO.cs](README.md#5-kitchenobjectsocs)
-     - RecipeListSO.cs
+     - [1. AudioClipRefsSO.cs](README.md#1-audiocliprefssocs)
+     - [2. BurningRecipeSO.cs](README.md#2-burningrecipesocs)
+     - [3. CuttingRecipeSO.cs](README.md#3-cuttingrecipesocs)
+     - [4. FryingRecipeSO.cs](README.md#4-fryingrecipesocs)
+     - [5. KitchenObjectSO.cs](README.md#5-kitchenobjectsocs)
+     - [6. RecipeListSO.cs](README.md6-recipelistsocs)
      - RecipeSO.cs
    -  UI
       - DeliveryManagerSingleUI.cs
@@ -1463,3 +1463,41 @@ public class KitchenObjectSO : ScriptableObject
     public string objectName;
 }
 ```
+
+---
+# [6. RecipeListSO.cs](README.md#1-scripts)
+
+## Description
+This scriptable object represents a list of recipes in game. It contains a collection of `RecipeSO` scriptable objects, each representing a specific recipe.
+
+## Inherits from
+- `ScriptableObject`
+
+## Fields
+- `public List<RecipeSO> recipeSOList`: The list of recipe scriptable objects.
+
+## Methods
+- None
+
+## Usage
+This scriptable object is used to store and manage a collection of recipes in the game environment. It provides a convenient way to organize and access multiple recipes from a centralized source.
+
+## Notes
+- Recipes may include instructions for preparing various dishes or items within the game.
+- The `recipeSOList` field allows for easy access to individual recipe scriptable objects, which can then be used to retrieve detailed information about each recipe.
+- This scriptable object can be used in conjunction with other game systems to implement features such as crafting, cooking, or quest objectives that involve completing specific recipes.
+
+#### Code
+```
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+//[CreateAssetMenu()]
+public class RecipeListSO : ScriptableObject
+{
+    public List<RecipeSO> recipeSOList;
+}
+```
+
+---
