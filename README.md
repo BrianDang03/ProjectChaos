@@ -30,7 +30,7 @@
       - [2. DeliveryManagerUI.cs](README.md#2-deliverymanageruics)
       - [3. GameOverUI.cs](README.md#3-gameoveruics)
       - [4. GamePauseUI.cs](README.md#4-gamepauseuics)
-      - GamePlayingClockUI.cs
+      - [5. GamePlayingClockUI.cs](README.md#5-gameplayingclockuics)
       - GameStartCountdownUI.cs
       - MainMenuUI.cs
       - OptionsUI.cs
@@ -1848,6 +1848,46 @@ public class GamePauseUI : MonoBehaviour
     private void Hide()
     {
         gameObject.SetActive(false);
+    }
+}
+
+```
+
+---
+### [5. GamePlayingClockUI.cs](README.md#1-scripts)
+
+#### Description
+This script manages the user interface (UI) for displaying a clock or timer during gameplay. It updates the fill amount of an image component based on the normalized game playing timer value.
+
+#### Inherits from
+- `MonoBehaviour`
+
+#### Fields
+- `public Image timerImage`: Image component representing the timer visual.
+
+#### Methods
+- `void Update()`: Called once per frame. Updates the fill amount of the timer image based on the normalized game playing timer value.
+
+#### Usage
+This script is attached to a GameObject in the scene representing the clock or timer UI. It requires an image component to display the timer visual. During gameplay, the `Update` method continuously updates the fill amount of the timer image based on the normalized game playing timer value obtained from the `KitchenGameManager`.
+
+#### Notes
+- The `Update` method retrieves the normalized game playing timer value from the `KitchenGameManager` and sets it as the fill amount of the timer image. This allows the timer image to visually represent the remaining time during gameplay.
+
+#### Code
+```
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class GamePlayingClockUI : MonoBehaviour
+{
+    [SerializeField] private Image timerImage;
+
+    private void Update()
+    {
+        timerImage.fillAmount = KitchenGameManager.Instance.GetGamePlayingTimerNormalized();
     }
 }
 
