@@ -22,7 +22,7 @@
      - [BurningRecipeSO.cs](README.md#2-burningrecipesocs)
      - [CuttingRecipeSO.cs](README.md#3-cuttingrecipesocs)
      - [FryingRecipeSO.cs](README.md#4-fryingrecipesocs)
-     - [KitchenObjectSO.cs](README.md5-kitchenobjectsocs)
+     - [KitchenObjectSO.cs](README.md#5-kitchenobjectsocs)
      - RecipeListSO.cs
      - RecipeSO.cs
    -  UI
