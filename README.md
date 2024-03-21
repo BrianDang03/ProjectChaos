@@ -156,7 +156,7 @@ This class represents a specific type of counter object. It inherits functionali
         - If the player is not carrying a kitchen object, it sets the player as the parent for the counter's kitchen object.
 
 #### Usage
-This class is used to define the behavior of a clear counter. It handles interactions between players and kitchen objects placed on the counter.
+This class is used to define the behavior of a clear counter in the game environment. It handles interactions between players and kitchen objects placed on the counter.
 
 #### Notes
 - This class extends functionality from the `BaseCounter` class, providing additional behavior specific to clearing counters in the game.
