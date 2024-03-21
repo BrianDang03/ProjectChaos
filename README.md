@@ -872,7 +872,7 @@ This class represents a stove counter object. It inherits functionality from the
 #### Usage
 This class is used to define the behavior of a stove counter in the game environment, allowing players to fry and burn ingredients to create cooked items.
 
-## Notes
+#### Notes
 - This class extends functionality from the `BaseCounter` class and implements the `IHasProgress` interface to track progress.
 - It manages the state of the stove counter and processes frying and burning recipes based on player interactions.
 - Events are used to notify other game systems or objects when the progress or state of the stove counter changes.
@@ -1519,7 +1519,7 @@ This scriptable object represents a recipe in a game. It contains a list of kitc
 #### Usage
 This scriptable object is used to define specific recipes in the game environment. It provides a structured way to store and manage recipes, including their required kitchen objects and names.
 
-## Notes
+#### Notes
 - Recipes define combinations of kitchen objects required to craft or prepare specific items within the game.
 - The `kitchenObjectSOList` field specifies the kitchen objects required for the recipe, allowing for complex combinations of ingredients, utensils, or other items.
 - The `recipeName` field provides a human-readable name for the recipe, which can be displayed to players or used for reference in code.
@@ -1706,10 +1706,10 @@ This script manages the user interface (UI) for displaying the game over screen 
 - `void Show()`: Displays the game over UI.
 - `void Hide()`: Hides the game over UI.
 
-## Usage
+#### Usage
 This script is attached to a GameObject in the scene representing the game over UI. It listens for changes in the game state triggered by the `KitchenGameManager`. When the game enters the game over state, it displays the game over UI and shows the total number of recipes delivered.
 
-## Notes
+#### Notes
 - The `Start` method subscribes to the `OnStateChanged` event triggered by the `KitchenGameManager`. When the game state changes, this event is fired, and the UI is updated accordingly.
 - The `KitchenGameManager_OnStateChanged` method checks if the game is over. If it is, the game over UI is displayed, and the total number of successful recipes delivered is updated in the `recipesDeliveredText`.
 - The `Show` and `Hide` methods are used to toggle the visibility of the game over UI.
