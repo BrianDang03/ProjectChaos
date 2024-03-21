@@ -7,7 +7,7 @@
      - [BaseCounter.cs](README.md#1-basecountercs)
      - [ClearConter.cs](README.md#2-clearcountercs)
      - [ContainerCounter.cs](README.md#3-containercountercs)
-       - ContainerCounterVisual.cs
+       - [ContainerCounterVisual.cs](README.md#3a-containercountervisualcs)
      - CuttingCoutner.cs
        - CuttingCounterVisual.cs
      - DeliveryCounter.cs
