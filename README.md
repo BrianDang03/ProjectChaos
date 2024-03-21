@@ -40,7 +40,7 @@
 ---
 ## Counters
 ---
-### 1. BaseCounter.cs
+### [1. BaseCounter.cs](README.md#1-scripts)
 
 #### Description
 This class represents a base counter object. It implements functionality related to interactions with kitchen objects.
