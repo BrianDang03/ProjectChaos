@@ -21,7 +21,7 @@
      - [AudioClipRefsSO.cs](README.md#1-audiocliprefssocs)
      - [BurningRecipeSO.cs](README.md#2-burningrecipesocs)
      - [CuttingRecipeSO.cs](README.md#3-cuttingrecipesocs)
-     - FryingRecipeSO.cs
+     - [FryingRecipeSO.cs](README.md#4-fryingrecipesocs)
      - KitchekObjectSO.cs
      - RecipeListSO.cs
      - RecipeSO.cs
@@ -1380,5 +1380,45 @@ public class CuttingRecipeSO : ScriptableObject
     public KitchenObjectSO input;
     public KitchenObjectSO output;
     public int cuttingProgressMax;
+}
+```
+
+---
+# [4. FryingRecipeSO.cs](README.md#1-scripts)
+
+## Description
+This scriptable object represents a frying recipe. It defines the input kitchen object, output kitchen object, and the maximum frying timer allowed for the recipe to complete.
+
+## Inherits from
+- `ScriptableObject`
+
+## Fields
+- `public KitchenObjectSO input`: The input kitchen object required for the frying recipe.
+- `public KitchenObjectSO output`: The output kitchen object produced after the frying process.
+- `public float fryingTimerMax`: The maximum duration allowed for the frying process to complete.
+
+## Methods
+- None
+
+## Usage
+This scriptable object is used to define specific frying recipes in the game environment. It provides a structured way to store and manage frying recipes, including their input objects, output objects, and timing constraints.
+
+## Notes
+- Frying recipes typically involve cooking certain kitchen objects in hot oil or on a heated surface until they reach a desired state or condition.
+- The `input` field specifies the kitchen object required for the frying recipe to start, while the `output` field defines the resulting kitchen object after the frying process is completed.
+- The `fryingTimerMax` field determines the maximum duration allowed for the frying process to complete, ensuring that the gameplay experience remains balanced and consistent.
+
+#### Code
+```
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+[CreateAssetMenu()]
+public class FryingRecipeSO : ScriptableObject
+{
+    public KitchenObjectSO input;
+    public KitchenObjectSO output;
+    public float fryingTimerMax;
 }
 ```
