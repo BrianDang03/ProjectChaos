@@ -219,6 +219,112 @@ public class ClearCounter : BaseCounter
 }
 
 ```
+---
+### 3. ContainerCounter.cs
+
+#### Description
+This class represents a specific type of counter object in a kitchen environment in a game. It inherits functionality from the `BaseCounter` class and implements custom interaction behavior.
+
+#### Inherits from
+- `BaseCounter`
+
+#### Events
+- `public event EventHandler OnPlayerGrabObject`: Event triggered when a player grabs an object from the counter.
+
+#### Fields
+- `[SerializeField] private KitchenObjectSO kitchenObjectSO`: Serialized field representing the scriptable object for kitchen objects associated with this counter.
+
+#### Methods
+- `public override void Interact(Player player)`: Overrides the base class method to implement custom interaction behavior when a player interacts with the counter.
+    - If there is no kitchen object on the counter:
+        - If the player is carrying a kitchen object, it sets the counter as the parent for that object.
+        - Otherwise, it does nothing.
+    - If there is a kitchen object on the counter:
+        - If the player is carrying a kitchen object:
+            - If the player is carrying a plate, it tries to add ingredients from the counter's kitchen object to the plate. If successful, it destroys the counter's kitchen object.
+            - If the counter's kitchen object is a plate, it tries to add ingredients from the player's kitchen object to the plate. If successful, it destroys the player's kitchen object.
+        - If the player is not carrying a kitchen object, it sets the player as the parent for the counter's kitchen object.
+    - If neither the player nor the counter has a kitchen object:
+        - Spawns a new kitchen object associated with this counter's `kitchenObjectSO` scriptable object and assigns it to the player.
+        - Invokes the `OnPlayerGrabObject` event.
+
+#### Usage
+This class is used to define the behavior of a specific type of counter in the game environment. It handles interactions between players and kitchen objects placed on the counter, as well as spawning new kitchen objects when both the player and the counter are empty.
+
+#### Notes
+- This class extends functionality from the `BaseCounter` class, providing additional behavior specific to counters that act as containers in the game.
+- Interaction logic within the `Interact` method determines how players and kitchen objects interact with the counter based on their current state, and spawns a new kitchen object when both the player and the counter are empty.
+
+#### Code
+```
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.EventSystems;
+
+public class ContainerCounter : BaseCounter
+{
+    public event EventHandler OnPlayerGrabObject;
+
+    [SerializeField] private KitchenObjectSO kitchenObjectSO;
+
+    public override void Interact(Player player)
+    {
+        if (!HasKitchenObject())
+        {
+            //There is not Kitchen Object Here
+            if (player.HasKitchenObject())
+            {
+                player.GetKitchenObject().SetKitchenObjectParent(this);
+            }
+            else
+            {
+                //Player has Nothing
+            }
+        }
+        else
+        {
+            //There is a Kitchen Object Here
+            if (player.HasKitchenObject())
+            {
+                //Playaer is Carrying Something
+                if (player.GetKitchenObject().TryGetPlate(out PlateKitchenObject plateKitchenObject))
+                {
+                    //Player is Holding a Plate
+                    if (plateKitchenObject.TryAddIngredient(GetKitchenObject().GetKitchenObjectSO()))
+                    {
+                        GetKitchenObject().DestorySelf();
+                    }
+                }
+                else if (GetKitchenObject().TryGetPlate(out plateKitchenObject))
+                {
+                    //Counter has Plate
+                    if (plateKitchenObject.TryAddIngredient(player.GetKitchenObject().GetKitchenObjectSO()))
+                    {
+                        player.GetKitchenObject().DestorySelf();
+                    }
+                }
+            }
+            else
+            {
+                //Player is not Carrying Anything
+                GetKitchenObject().SetKitchenObjectParent(player);
+            }
+        }
+
+        if (!player.HasKitchenObject() && !HasKitchenObject())
+        {
+            //Playaer is not carrying anything
+            KitchenObject.SpawnKitchenObject(kitchenObjectSO, player);
+
+            OnPlayerGrabObject?.Invoke(this, EventArgs.Empty);
+        }
+    }
+}
+
+```
+
 
 
 
