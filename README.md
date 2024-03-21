@@ -34,7 +34,7 @@
       - [6. GameStartCountdownUI.cs](README.md#6-gamestartcountdownuics)
       - [7. MainMenuUI.cs](README.md#7-mainmenuuics)
       - [8. OptionsUI.cs](README.md#8-optionsuics)
-      - PlateIconsSingleUI.cs
+      - [PlateIconsSingleUI.cs](README.md#9.-plateiconssingleuics)
       - PlateIconUI.cs
       - ProgressBarUI.cs
 ---
@@ -2128,6 +2128,44 @@ public class OptionsUI : MonoBehaviour
         gameObject.SetActive(false);
     }
 }
-
 ```
 
+---
+### [9. PlateIconsSingleUI.cs](README.md#1-scripts)
+
+#### Description
+This script manages the visual representation of a single plate icon in the user interface (UI). It sets the sprite of the plate icon based on the provided KitchenObjectSO.
+
+#### Inherits from
+- `MonoBehaviour`
+
+#### Fields
+- `public Image image`: Image component representing the plate icon in the UI.
+
+#### Methods
+- `public void SetKitchenObjectSO(KitchenObjectSO kitchenOBjectSO)`: Sets the sprite of the plate icon based on the provided KitchenObjectSO.
+
+#### Usage
+This script is attached to a GameObject representing a single plate icon in the UI. It requires an Image component for displaying the plate icon. The `SetKitchenObjectSO` method is used to update the sprite of the plate icon based on the provided KitchenObjectSO.
+
+#### Notes
+- The `SetKitchenObjectSO` method updates the sprite of the plate icon to match the sprite of the provided KitchenObjectSO, allowing for dynamic changes to the plate icon based on the game state.
+
+#### Code
+```
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine.UI;
+using UnityEngine;
+
+public class PlateIconsSingleUI : MonoBehaviour
+{
+    [SerializeField] private Image image;
+
+    public void SetKitchenObjectSO(KitchenObjectSO kitchenOBjectSO)
+    {
+        image.sprite = kitchenOBjectSO.sprite;
+    }
+}
+
+```
