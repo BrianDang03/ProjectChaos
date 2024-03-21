@@ -10,7 +10,7 @@
        - [ContainerCounterVisual.cs](README.md#3a-containercountervisualcs)
      - [CuttingCounter.cs](README.md#4-cuttingcountercs)
        - [CuttingCounterVisual.cs](README.md#4a-cuttingcountervisualcs)
-     - DeliveryCounter.cs
+     - [DeliveryCounter.cs](README.md#deliverycountercs)
      - PlateCounter.cs
        - PlateCounterVisual.cs
      - StoveCounter.cs
