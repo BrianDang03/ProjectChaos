@@ -24,7 +24,7 @@
      - [4. FryingRecipeSO.cs](README.md#4-fryingrecipesocs)
      - [5. KitchenObjectSO.cs](README.md#5-kitchenobjectsocs)
      - [6. RecipeListSO.cs](README.md#6-recipelistsocs)
-     - RecipeSO.cs
+     - [RecipeSO.cs](README.md#7-recipesocs)
    -  UI
       - DeliveryManagerSingleUI.cs
       - DeliveryMangaerUI.cs
@@ -1501,3 +1501,39 @@ public class RecipeListSO : ScriptableObject
 ```
 
 ---
+### [7. RecipeSO.cs](README.md#1-scripts)
+
+#### Description
+This scriptable object represents a recipe in a game. It contains a list of kitchen objects required for the recipe and the name of the recipe.
+
+#### Inherits from
+- `ScriptableObject`
+
+#### Fields
+- `public List<KitchenObjectSO> kitchenObjectSOList`: The list of kitchen object scriptable objects required for the recipe.
+- `public string recipeName`: The name of the recipe.
+
+#### Methods
+- None
+
+#### Usage
+This scriptable object is used to define specific recipes in the game environment. It provides a structured way to store and manage recipes, including their required kitchen objects and names.
+
+## Notes
+- Recipes define combinations of kitchen objects required to craft or prepare specific items within the game.
+- The `kitchenObjectSOList` field specifies the kitchen objects required for the recipe, allowing for complex combinations of ingredients, utensils, or other items.
+- The `recipeName` field provides a human-readable name for the recipe, which can be displayed to players or used for reference in code.
+
+#### Code
+```
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+[CreateAssetMenu()]
+public class RecipeSO : ScriptableObject
+{
+    public List<KitchenObjectSO> kitchenObjectSOList;
+    public string recipeName;
+}
+```
