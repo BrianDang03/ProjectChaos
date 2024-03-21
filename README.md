@@ -38,8 +38,10 @@
       - PlateIconUI.cs
       - ProgressBarUI.cs
 ---
-## Counters
+# Scripts
 ---
+## Counters
+
 ### [1. BaseCounter.cs](README.md#1-scripts)
 
 #### Description
@@ -1248,3 +1250,56 @@ public class TrashCounter : BaseCounter
     }
 }
 ```
+
+---
+## ScriptableObjects
+### 1. AudioClipRefsSO.cs
+
+#### Description
+This scriptable object represents a collection of audio clips categorized by different types of sounds commonly used in a kitchen environment in a game. It provides references to various audio clips that can be used for different events or actions within the game.
+
+#### Inherits from
+- `ScriptableObject`
+
+#### Fields
+- `public AudioClip[] chop`: Array of audio clips for chopping sounds.
+- `public AudioClip[] deliveryFail`: Array of audio clips for delivery failure sounds.
+- `public AudioClip[] deliverySucess`: Array of audio clips for delivery success sounds.
+- `public AudioClip[] footstep`: Array of audio clips for footstep sounds.
+- `public AudioClip[] objectDrop`: Array of audio clips for object dropping sounds.
+- `public AudioClip[] objectPickup`: Array of audio clips for object pickup sounds.
+- `public AudioClip stoveSizzle`: Single audio clip for stove sizzle sound.
+- `public AudioClip[] trash`: Array of audio clips for trash sounds.
+- `public AudioClip[] warning`: Array of audio clips for warning sounds.
+
+#### Methods
+- None
+
+#### Usage
+This scriptable object is used to store references to audio clips used for various events or actions within the game environment, particularly in a kitchen setting. It allows easy access to different types of sounds to enhance the auditory experience of the game.
+
+#### Notes
+- Audio clips are categorized by different types of sounds commonly encountered in a kitchen environment, such as chopping, delivery, footstep, object interaction, stove sizzle, trash, and warning sounds.
+- This scriptable object can be easily extended or modified to include additional audio clips or categories as needed.
+
+#### Code
+```
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+[CreateAssetMenu()]
+public class AudioClipRefsSO : ScriptableObject
+{
+    public AudioClip[] chop;
+    public AudioClip[] deliveryFail;
+    public AudioClip[] deliverySucess;
+    public AudioClip[] footstep;
+    public AudioClip[] objectDrop;
+    public AudioClip[] objectPickup;
+    public AudioClip stoveSizzle;
+    public AudioClip[] trash;
+    public AudioClip[] warning;
+}
+```
+
