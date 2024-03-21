@@ -26,9 +26,9 @@
      - [6. RecipeListSO.cs](README.md#6-recipelistsocs)
      - [7. RecipeSO.cs](README.md#7-recipesocs)
    -  UI
-      - [DeliveryManagerSingleUI.cs](README.md#1-deliverymanagersingleuics)
-      - [DeliveryManagerUI.cs](README.md#2-deliverymanageruics)
-      - GameOverUI.cs(README.md#3-gameoverui)
+      - [1. DeliveryManagerSingleUI.cs](README.md#1-deliverymanagersingleuics)
+      - [2. DeliveryManagerUI.cs](README.md#2-deliverymanageruics)
+      - [3. GameOverUI.cs](README.md#3-gameoverui)
       - GamePauseUI.cs
       - GamePlayingClockUI.cs
       - GameStartCountdownUI.cs
