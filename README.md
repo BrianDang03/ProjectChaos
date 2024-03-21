@@ -18,7 +18,7 @@
        - [7b. StoveCounterSound.cs](README.md#7b-stovecountersoundcs)
      - [8. TrashCounter.cs](README.md#8-trashcountercs)
    - ScriptableObjects
-     - AudioClipRefsSO.cs
+     - [AudioClipRefsSO.cs](README.md#1-audiocliprefssocs)
      - BurningRecipeSO.cs
      - CuttingRecipeSO.cs
      - FryingRecipeSO.cs
