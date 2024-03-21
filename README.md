@@ -35,8 +35,8 @@
       - [7. MainMenuUI.cs](README.md#7-mainmenuuics)
       - [8. OptionsUI.cs](README.md#8-optionsuics)
       - [9. PlateIconsSingleUI.cs](README.md#9-plateiconssingleuics)
-      - PlateIconUI.cs
-      - ProgressBarUI.cs
+      - [10. PlateIconUI.cs](README.md#10-plateiconuics)
+      - [11. ProgressBarUI.cs](README.md#11-progressbaruics)
 ---
 # Scripts
 ---
@@ -2167,5 +2167,155 @@ public class PlateIconsSingleUI : MonoBehaviour
         image.sprite = kitchenOBjectSO.sprite;
     }
 }
-
 ```
+
+---
+### [10. PlateIconUI.cs](README.md#1-scripts)
+
+#### Description
+This script manages the visual representation of ingredients on a plate icon in the user interface (UI). It dynamically updates the plate icon to display the ingredients added to the plate.
+
+#### Inherits from
+- `MonoBehaviour`
+
+#### Fields
+- `public PlateKitchenObject plateKitchenObject`: Reference to the PlateKitchenObject script, representing the plate containing ingredients.
+- `public Transform iconTemplate`: Reference to the template for individual ingredient icons.
+
+#### Methods
+- `private void Awake()`: Called when the script instance is being loaded. It deactivates the icon template GameObject to prevent it from being visible in the UI.
+- `private void Start()`: Called before the first frame update. Subscribes to the PlateKitchenObject's OnIngredientAdded event to update the UI when ingredients are added to the plate.
+- `private void PlateKitchenObject_OnIngredientAdded(object sender, PlateKitchenObject.OnIngredientAddedEventArgs e)`: Event handler method called when an ingredient is added to the plate. It triggers an update of the UI.
+- `private void UpdateVisual()`: Updates the visual representation of the plate icon based on the ingredients currently on the plate. It destroys existing ingredient icons and creates new ones based on the plate's ingredients.
+
+#### Usage
+This script is attached to a GameObject representing a plate icon in the UI. It requires a reference to a PlateKitchenObject representing the plate containing ingredients and a template for individual ingredient icons. The plate icon's visual representation is updated dynamically as ingredients are added to or removed from the plate.
+
+#### Notes
+- The `UpdateVisual` method dynamically updates the plate icon to display the ingredients currently on the plate, allowing players to visually track the contents of the plate during gameplay.
+
+#### Code
+```
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class PlateIconUI : MonoBehaviour
+{
+    [SerializeField] private PlateKitchenObject plateKitchenObject;
+    [SerializeField] private Transform iconTemplate;
+
+    private void Awake()
+    {
+        iconTemplate.gameObject.SetActive(false);
+    }
+
+    private void Start()
+    {
+        plateKitchenObject.OnIngredientAdded += PlateKitchenObject_OnIngredientAdded;
+    }
+
+    private void PlateKitchenObject_OnIngredientAdded(object sender, PlateKitchenObject.OnIngredientAddedEventArgs e)
+    {
+        UpdateVisual();
+    }
+
+    private void UpdateVisual()
+    {
+        foreach (Transform child in transform)
+        {
+            if (child == iconTemplate) continue;
+            Destroy(child.gameObject);
+        }
+        foreach (KitchenObjectSO kitchenObjectSO in plateKitchenObject.GetKitchenObjectSOList())
+        {
+            Transform iconTransform = Instantiate(iconTemplate, transform);
+            iconTransform.gameObject.SetActive(true);
+            iconTransform.GetComponent<PlateIconsSingleUI>().SetKitchenObjectSO(kitchenObjectSO);
+        }
+    }
+}
+```
+
+---
+### [11. ProgressBarUI.cs](README.md#1-scripts)
+
+#### Description
+This script handles the visual representation of a progress bar based on an object that implements the `IHasProgress` interface. It dynamically updates the fill amount of the progress bar to reflect changes in the progress of the associated object.
+
+#### Inherits from
+- `MonoBehaviour`
+
+#### Fields
+- `public GameObject hasProgressGameObject`: Reference to the GameObject containing the component implementing the `IHasProgress` interface.
+- `private IHasProgress hasProgress`: Reference to the component implementing the `IHasProgress` interface.
+- `public Image barImage`: Reference to the Image component representing the progress bar.
+
+#### Methods
+- `private void Start()`: Called before the first frame update. Initializes the progress bar by subscribing to the `OnProgressChanged` event of the `IHasProgress` component and sets the initial fill amount of the progress bar to 0.0. It also checks if the associated GameObject has a component implementing the `IHasProgress` interface.
+- `private void IHasProgress_OnProgressChanged(object sender, IHasProgress.OnProgressChangedEventArgs e)`: Event handler method called when the progress of the associated object changes. Updates the fill amount of the progress bar based on the normalized progress value provided in the event arguments. It also shows or hides the progress bar based on whether the progress is at its minimum or maximum value.
+- `private void Show()`: Shows the progress bar by setting its GameObject active.
+- `private void Hide()`: Hides the progress bar by setting its GameObject inactive.
+
+#### Usage
+This script is attached to a GameObject representing a progress bar in the UI. It requires references to a GameObject containing a component implementing the `IHasProgress` interface and an Image component representing the progress bar. The progress bar's fill amount is dynamically updated based on changes in the progress of the associated object.
+
+#### Notes
+- The `ProgressBarUI` script provides a flexible way to visualize the progress of various game elements that implement the `IHasProgress` interface, such as timers, completion rates, or other incremental progress indicators.
+
+#### Code
+```
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class ProgressBarUI : MonoBehaviour
+{
+    [SerializeField] private GameObject hasProgressGameObject;
+    [SerializeField] private IHasProgress hasProgress;
+    [SerializeField] private Image barImage;
+
+    private void Start()
+    {
+        hasProgress = hasProgressGameObject.GetComponent<IHasProgress>();
+
+        if (hasProgress == null)
+        {
+            Debug.LogError("Game Object has no components of IHasProgress");
+        }
+
+        hasProgress.OnProgressChanged += IHasProgress_OnProgressChanged;
+
+        barImage.fillAmount = 0f;
+
+        Hide();
+    }
+
+    private void IHasProgress_OnProgressChanged(object sender, IHasProgress.OnProgressChangedEventArgs e)
+    {
+        barImage.fillAmount = e.progressNormalized;
+
+        if (e.progressNormalized == 0f || e.progressNormalized == 1f)
+        {
+            Hide();
+        }
+        else
+        {
+            Show();
+        }
+    }
+
+    private void Show()
+    {
+        gameObject.SetActive(true);
+    }
+
+    private void Hide()
+    {
+        gameObject.SetActive(false);
+    }
+}
+```
+
+---
