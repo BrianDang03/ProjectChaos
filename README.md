@@ -20,7 +20,7 @@
    - ScriptableObjects
      - [AudioClipRefsSO.cs](README.md#1-audiocliprefssocs)
      - [BurningRecipeSO.cs](README.md#2-burningrecipesocs)
-     - CuttingRecipeSO.cs
+     - [CuttingRecipeSO.cs](README.md#3-cuttingrecipesocs)
      - FryingRecipeSO.cs
      - KitchekObjectSO.cs
      - RecipeListSO.cs
@@ -1302,6 +1302,8 @@ public class AudioClipRefsSO : ScriptableObject
     public AudioClip[] warning;
 }
 ```
+
+---
 ### [2. BurningRecipeSO.cs](READEME.md#1-scripts)
 
 #### Description
@@ -1338,5 +1340,45 @@ public class BuringRecipeSO : ScriptableObject
     public KitchenObjectSO input;
     public KitchenObjectSO output;
     public float burningTimerMax;
+}
+```
+
+---
+### [3. CuttingRecipeSO.cs](README.md#1-scripts)
+
+#### Description
+This scriptable object represents a cutting recipe. It defines the input kitchen object, output kitchen object, and the maximum cutting progress required to complete the recipe.
+
+#### Inherits from
+- `ScriptableObject`
+
+#### Fields
+- `public KitchenObjectSO input`: The input kitchen object required for the cutting recipe.
+- `public KitchenObjectSO output`: The output kitchen object produced after the cutting process.
+- `public int cuttingProgressMax`: The maximum cutting progress required to complete the cutting recipe.
+
+#### Methods
+- None
+
+#### Usage
+This scriptable object is used to define specific cutting recipes in the game environment. It provides a structured way to store and manage cutting recipes, including their input objects, output objects, and cutting progress requirements.
+
+#### Notes
+- Cutting recipes typically involve slicing or chopping certain kitchen objects into smaller pieces to prepare them for cooking or further processing.
+- The `input` field specifies the kitchen object required for the cutting recipe to start, while the `output` field defines the resulting kitchen object after the cutting process is completed.
+- The `cuttingProgressMax` field determines the maximum cutting progress required to complete the cutting recipe, ensuring that the gameplay experience remains balanced and consistent.
+
+#### Code
+```
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+[CreateAssetMenu()]
+public class CuttingRecipeSO : ScriptableObject
+{
+    public KitchenObjectSO input;
+    public KitchenObjectSO output;
+    public int cuttingProgressMax;
 }
 ```
