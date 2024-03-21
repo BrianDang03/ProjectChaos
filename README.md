@@ -4,19 +4,19 @@
 
 ### 1. Scripts
    - Counters
-     - [BaseCounter.cs](README.md#1-basecountercs)
-     - [ClearConter.cs](README.md#2-clearcountercs)
-     - [ContainerCounter.cs](README.md#3-containercountercs)
-       - [ContainerCounterVisual.cs](README.md#3a-containercountervisualcs)
-     - [CuttingCounter.cs](README.md#4-cuttingcountercs)
-       - [CuttingCounterVisual.cs](README.md#4a-cuttingcountervisualcs)
-     - [DeliveryCounter.cs](README.md#5-deliverycountercs)
-     - [PlatesCounter.cs](README.md#6-platescountercs)
-       - [PlateCounterVisual.cs](README.md#6a-platescountervisualcs)
-     - [StoveCounter.cs](README.md#7-stovecountercs)
-       - [StoveCounterVisual.cs](README.md#7a-stovecountervisualcs) 
-       - [StoveCounterSound.cs](README.md#7b-stovecountersoundcs)
-     - [TrashCounter.cs](README.md#8-trashcountercs)
+     - [1. BaseCounter.cs](README.md#1-basecountercs)
+     - [2. ClearConter.cs](README.md#2-clearcountercs)
+     - [3. ContainerCounter.cs](README.md#3-containercountercs)
+       - [3a. ContainerCounterVisual.cs](README.md#3a-containercountervisualcs)
+     - [4. CuttingCounter.cs](README.md#4-cuttingcountercs)
+       - [4a. CuttingCounterVisual.cs](README.md#4a-cuttingcountervisualcs)
+     - [5. DeliveryCounter.cs](README.md#5-deliverycountercs)
+     - [6. PlatesCounter.cs](README.md#6-platescountercs)
+       - [6a. PlateCounterVisual.cs](README.md#6a-platescountervisualcs)
+     - [7. StoveCounter.cs](README.md#7-stovecountercs)
+       - [7a. StoveCounterVisual.cs](README.md#7a-stovecountervisualcs) 
+       - [7b. StoveCounterSound.cs](README.md#7b-stovecountersoundcs)
+     - [8. TrashCounter.cs](README.md#8-trashcountercs)
    - ScriptableObjects
      - AudioClipRefsSO.cs
      - BurningRecipeSO.cs
