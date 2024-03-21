@@ -1256,7 +1256,7 @@ public class TrashCounter : BaseCounter
 ### [1. AudioClipRefsSO.cs](README.md#1-scripts)
 
 #### Description
-This scriptable object represents a collection of audio clips categorized by different types of sounds commonly used in a kitchen environment in a game. It provides references to various audio clips that can be used for different events or actions within the game.
+This scriptable object represents a collection of audio clips categorized by different types of sounds commonly used in game. It provides references to various audio clips that can be used for different events or actions within the game.
 
 #### Inherits from
 - `ScriptableObject`
