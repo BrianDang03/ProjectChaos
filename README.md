@@ -10,8 +10,8 @@
        - [ContainerCounterVisual.cs](README.md#3a-containercountervisualcs)
      - [CuttingCounter.cs](README.md#4-cuttingcountercs)
        - [CuttingCounterVisual.cs](README.md#4a-cuttingcountervisualcs)
-     - [DeliveryCounter.cs](README.md#deliverycountercs)
-     - PlateCounter.cs
+     - [DeliveryCounter.cs](README.md#5-deliverycountercs)
+     - [PlateCounter.cs](README.md#6-platecountercs)
        - PlateCounterVisual.cs
      - StoveCounter.cs
        - StoveCounterVisual.cs 
@@ -674,7 +674,7 @@ public class DeliveryCounter : BaseCounter
 ```
 
 ---
-### 5. PlatesCounter Class
+### 5. PlatesCounter.cs
 
 #### Description
 This class represents a plates counter object. It inherits functionality from the `BaseCounter` class and implements behavior specific to spawning and removing plates.
