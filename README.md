@@ -13,9 +13,9 @@
      - [DeliveryCounter.cs](README.md#5-deliverycountercs)
      - [PlatesCounter.cs](README.md#6-platescountercs)
        - [PlateCounterVisual.cs](README.md#6a-platescountervisualcs)
-     - StoveCounter.cs
-       - StoveCounterVisual.cs 
-       - StoveCounterSound.cs
+     - [StoveCounter.cs](README.md#7-stovecountercs)
+       - [StoveCounterVisual.cs](README.md#7a-stovecountervisualcs) 
+       - [StoveCounterSound.cs](README.md#7b-stovecountersoundcs)
      - TrashCounter.cs
    - ScriptableObjects
      - AudioClipRefsSO.cs
