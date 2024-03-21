@@ -19,7 +19,7 @@
      - [8. TrashCounter.cs](README.md#8-trashcountercs)
    - ScriptableObjects
      - [AudioClipRefsSO.cs](README.md#1-audiocliprefssocs)
-     - [BurningRecipeSO.cs])(README.md#2-burningrecipesocs)
+     - [BurningRecipeSO.cs](README.md#2-burningrecipesocs)
      - CuttingRecipeSO.cs
      - FryingRecipeSO.cs
      - KitchekObjectSO.cs
