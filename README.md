@@ -616,7 +616,7 @@ public class CuttingCounterVisual : MonoBehaviour
 ```
 
 ---
-### DeliveryCounter.cs
+### 5. DeliveryCounter.cs
 
 #### Description
 This class represents a delivery counter object. It inherits functionality from the `BaseCounter` class and implements behavior specific to delivering recipes.
@@ -674,7 +674,7 @@ public class DeliveryCounter : BaseCounter
 ```
 
 ---
-### 5. PlatesCounter.cs
+### 6. PlatesCounter.cs
 
 #### Description
 This class represents a plates counter object. It inherits functionality from the `BaseCounter` class and implements behavior specific to spawning and removing plates.
