@@ -28,7 +28,7 @@
    -  UI
       - [DeliveryManagerSingleUI.cs](README.md#1-deliverymanagersingleuics)
       - [DeliveryManagerUI.cs](README.md#2-deliverymanageruics)
-      - GameOverUI.cs
+      - GameOverUI.cs(README.md#3-gameoverui)
       - GamePauseUI.cs
       - GamePlayingClockUI.cs
       - GameStartCountdownUI.cs
@@ -1686,5 +1686,77 @@ public class DeliveryManagerUI : MonoBehaviour
         }
     }
 }
+```
+
+---
+### [3. GameOverUI.cs](README.md#1-scripts)
+
+#### Description
+This script manages the user interface (UI) for displaying the game over screen in game. It shows the total number of recipes delivered when the game is over.
+
+#### Inherits from
+- `MonoBehaviour`
+
+#### Fields
+- `public TextMeshProUGUI recipesDeliveredText`: Text component for displaying the total number of recipes delivered.
+
+#### Methods
+- `void Start()`: Called before the first frame update.
+- `void KitchenGameManager_OnStateChanged(object sender, EventArgs e)`: Event handler for the `OnStateChanged` event triggered by the `KitchenGameManager`.
+- `void Show()`: Displays the game over UI.
+- `void Hide()`: Hides the game over UI.
+
+## Usage
+This script is attached to a GameObject in the scene representing the game over UI. It listens for changes in the game state triggered by the `KitchenGameManager`. When the game enters the game over state, it displays the game over UI and shows the total number of recipes delivered.
+
+## Notes
+- The `Start` method subscribes to the `OnStateChanged` event triggered by the `KitchenGameManager`. When the game state changes, this event is fired, and the UI is updated accordingly.
+- The `KitchenGameManager_OnStateChanged` method checks if the game is over. If it is, the game over UI is displayed, and the total number of successful recipes delivered is updated in the `recipesDeliveredText`.
+- The `Show` and `Hide` methods are used to toggle the visibility of the game over UI.
+
+#### Code
+```
+using System.Collections;
+using System.Collections.Generic;
+using TMPro;
+using UnityEngine;
+using System;
+
+public class GameOverUI : MonoBehaviour
+{
+    [SerializeField] private TextMeshProUGUI recipesDeliveredText;
+
+    private void Start()
+    {
+        KitchenGameManager.Instance.OnStateChanged += KitchenGameManager_OnStateChanged;
+
+        Hide();
+    }
+
+    private void KitchenGameManager_OnStateChanged(object sender, EventArgs e)
+    {
+        if (KitchenGameManager.Instance.IsGameOver())
+        {
+            Show();
+            recipesDeliveredText.text = DeliveryManager.Instance.GetSuccessfulRecipesAmount().ToString();
+        }
+        else
+        {
+            Hide();
+        }
+    }
+
+    private void Show()
+    {
+        gameObject.SetActive(true);
+    }
+
+    private void Hide()
+    {
+        gameObject.SetActive(false);
+    }
+}
 
 ```
+
+---
