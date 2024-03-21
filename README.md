@@ -22,7 +22,7 @@
      - [BurningRecipeSO.cs](README.md#2-burningrecipesocs)
      - [CuttingRecipeSO.cs](README.md#3-cuttingrecipesocs)
      - [FryingRecipeSO.cs](README.md#4-fryingrecipesocs)
-     - KitchekObjectSO.cs
+     - [KitchenObjectSO.cs](README.md5-kitchenobjectsocs)
      - RecipeListSO.cs
      - RecipeSO.cs
    -  UI
@@ -1420,5 +1420,46 @@ public class FryingRecipeSO : ScriptableObject
     public KitchenObjectSO input;
     public KitchenObjectSO output;
     public float fryingTimerMax;
+}
+```
+
+---
+### [5. KitchenObjectSO.cs](README.md#1-scripts)
+
+#### Description
+This scriptable object represents. It contains information such as the prefab, sprite, and name of the object.
+
+#### Inherits from
+- `ScriptableObject`
+
+#### Fields
+- `public Transform prefab`: The prefab used to instantiate the kitchen object in the game world.
+- `public Sprite sprite`: The sprite representing the visual appearance of the kitchen object.
+- `public string objectName`: The name of the kitchen object.
+
+#### Methods
+- None
+
+#### Usage
+This scriptable object is used to define various kitchen objects in the game environment. It provides a convenient way to store and manage information about kitchen objects, including their visual appearance and name.
+
+#### Notes
+- Kitchen objects may include items such as ingredients, utensils, appliances, or other items commonly found in a kitchen setting.
+- The `prefab` field allows for easy instantiation of kitchen objects in the game world.
+- The `sprite` field defines the visual representation of the kitchen object, which may be used for rendering in the game.
+- The `objectName` field provides a human-readable name for the kitchen object, which can be displayed to players or used for reference in code.
+
+#### Code
+```
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+[CreateAssetMenu()]
+public class KitchenObjectSO : ScriptableObject
+{
+    public Transform prefab;
+    public Sprite sprite;
+    public string objectName;
 }
 ```
