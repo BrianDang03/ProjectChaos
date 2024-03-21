@@ -133,7 +133,7 @@ public class BaseCounter : MonoBehaviour, IKitchenObjectParent
 
 ```
 ---
-### 2. ClearCounter.cs
+### [2. ClearCounter.cs](README.md#1-scripts)
 
 #### Description
 This class represents a specific type of counter object. It inherits functionality from the `BaseCounter` class and implements custom interaction behavior. It is an empty counter for placing kitchen objects on.
@@ -220,7 +220,7 @@ public class ClearCounter : BaseCounter
 
 ```
 ---
-### 3. ContainerCounter.cs
+### [3. ContainerCounter.cs](README.md#1-scripts)
 
 #### Description
 This class represents a specific type of counter object. It inherits functionality from the `BaseCounter` class and implements custom interaction behavior. It is responsible for spawning in kitchen objects when the player interacts with it.
@@ -324,7 +324,7 @@ public class ContainerCounter : BaseCounter
 }
 ```
 
-### 3a. ContainerCounterVisual.cs
+### [3a. ContainerCounterVisual.cs](README.md#1-scripts)
 
 #### Description
 This class represents the visual component of a container counter object. It listens to events from a `ContainerCounter` instance and triggers animations accordingly.
@@ -380,7 +380,7 @@ public class ContainerCounterVisual : MonoBehaviour
 ```
 
 ---
-### 4. CuttingCounter.cs
+### [4. CuttingCounter.cs](README.md#1-scripts)
 
 #### Description
 This class represents a specific type of counter object. It inherits functionality from the `BaseCounter` class and implements cutting behavior for kitchen objects placed on the counter.
@@ -557,7 +557,7 @@ public class CuttingCounter : BaseCounter, IHasProgress
 }
 ```
 
-### 4a. CuttingCounterVisual.cs
+### [4a. CuttingCounterVisual.cs](README.md#1-scripts)
 
 #### Description
 This class represents the visual component of a cutting counter object. It listens to the `OnCut` event from a `CuttingCounter` instance and triggers animations accordingly.
@@ -616,7 +616,7 @@ public class CuttingCounterVisual : MonoBehaviour
 ```
 
 ---
-### 5. DeliveryCounter.cs
+### [5. DeliveryCounter.cs](README.md#1-scripts)
 
 #### Description
 This class represents a delivery counter object. It inherits functionality from the `BaseCounter` class and implements behavior specific to delivering recipes.
@@ -674,7 +674,7 @@ public class DeliveryCounter : BaseCounter
 ```
 
 ---
-### 6. PlatesCounter.cs
+### [6. PlatesCounter.cs](README.md#1-scripts)
 
 #### Description
 This class represents a plates counter object. It inherits functionality from the `BaseCounter` class and implements behavior specific to spawning and removing plates.
@@ -758,7 +758,7 @@ public class PlatesCounter : BaseCounter
 }
 ```
 
-### 6a. PlatesCounterVisual.cs
+### [6a. PlatesCounterVisual.cs](README.md#1-scripts)
 
 #### Description
 This class represents the visual component of a plates counter object. It listens to events from a `PlatesCounter` instance and updates the visual representation of plates on the counter accordingly.
@@ -833,7 +833,7 @@ public class PlatesCounterVisual : MonoBehaviour
 ```
 
 ---
-### 7. StoveCounter.cs
+### [7. StoveCounter.cs](README.md#1-scripts)
 
 #### Description
 This class represents a stove counter object. It inherits functionality from the `BaseCounter` class and implements behavior specific to frying and burning recipes.
@@ -1074,7 +1074,7 @@ public class StoveCounter : BaseCounter, IHasProgress
 }
 ```
 
-### 7a. StoveCounterVisual.cs
+### [7a. StoveCounterVisual.cs](README.md#1-scripts)
 
 #### Description
 This class represents the visual component of a stove counter object. It listens to the `OnStateChanged` event from a `StoveCounter` instance and updates the visual representation of the stove accordingly.
@@ -1124,7 +1124,7 @@ public class StoveCounterVisual : MonoBehaviour
 }
 ```
 
-### 7b. StoveCounterSound.cs
+### [7b. StoveCounterSound.cs](README.md#1-scripts)
 
 #### Description
 This class represents the sound component of a stove counter object. It listens to the `OnStateChanged` event from a `StoveCounter` instance and plays or pauses the associated audio source based on the state of the stove.
@@ -1188,7 +1188,7 @@ public class StoveCounterSound : MonoBehaviour
 ```
 
 ---
-### 8. TrashCounter.cs
+### [8. TrashCounter.cs](README.md#1-scripts)
 
 #### Description
 This class represents a trash counter object. It inherits functionality from the `BaseCounter` class and implements behavior specific to trashing kitchen objects.
@@ -1248,18 +1248,3 @@ public class TrashCounter : BaseCounter
     }
 }
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
