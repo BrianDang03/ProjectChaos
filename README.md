@@ -12,7 +12,7 @@
        - [CuttingCounterVisual.cs](README.md#4a-cuttingcountervisualcs)
      - [DeliveryCounter.cs](README.md#5-deliverycountercs)
      - [PlatesCounter.cs](README.md#6-platescountercs)
-       - PlateCounterVisual.cs
+       - [PlateCounterVisual.cs](README.md#6a-platescountervisualcs)
      - StoveCounter.cs
        - StoveCounterVisual.cs 
        - StoveCounterSound.cs
@@ -757,6 +757,81 @@ public class PlatesCounter : BaseCounter
     }
 }
 ```
+
+### 6a. PlatesCounterVisual.cs
+
+#### Description
+This class represents the visual component of a plates counter object. It listens to events from a `PlatesCounter` instance and updates the visual representation of plates on the counter accordingly.
+
+#### Inherits from
+- `MonoBehaviour`
+
+#### Fields
+- `[SerializeField] PlatesCounter platesCounter`: Reference to the `PlatesCounter` instance associated with this visual component.
+- `[SerializeField] private Transform counterTopPoint`: Reference to the transform representing the top point of the counter.
+- `[SerializeField] private Transform plateVisualPrefab`: Prefab representing the visual representation of a plate.
+- `private List<GameObject> plateVisualGameObjectList`: List to store references to instantiated plate visual GameObjects.
+
+#### Methods
+- `private void Awake()`: Unity lifecycle method called when the script instance is being loaded. Initializes the list for plate visual GameObjects.
+- `void Start()`: Unity lifecycle method called before the first frame update. Subscribes to the `OnPlateSpawned` and `OnPlateRemoved` events of the associated `PlatesCounter` instance.
+- `private void PlatesCounter_OnPlateSpawned(object sender, EventArgs e)`: Event handler method triggered when a plate is spawned on the plates counter. Instantiates a plate visual GameObject and adds it to the list.
+- `private void PlatesCounter_OnPlateRemoved(object sender, EventArgs e)`: Event handler method triggered when a plate is removed from the plates counter. Removes the last plate visual GameObject from the list and destroys it.
+
+#### Usage
+This class is used to manage the visual representation of plates on the plates counter in the game environment. It listens to events triggered by the `PlatesCounter` instance and updates the visual representation accordingly.
+
+#### Notes
+- This class is responsible for instantiating and destroying plate visual GameObjects based on events triggered by the `PlatesCounter` instance.
+- It ensures that the visual representation of plates on the counter remains synchronized with the actual state of the `PlatesCounter`.
+
+#### Code
+```
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Numerics;
+using UnityEngine;
+
+public class PlatesCounterVisual : MonoBehaviour
+{
+    [SerializeField] PlatesCounter platesCounter;
+    [SerializeField] private Transform counterTopPoint;
+    [SerializeField] private Transform plateVisualPrefab;
+
+    private List<GameObject> plateVisualGameObjectList;
+
+    private void Awake()
+    {
+        plateVisualGameObjectList = new List<GameObject>();
+    }
+
+    void Start()
+    {
+        platesCounter.OnPlateSpawned += PlatesCounter_OnPlateSpawned;
+        platesCounter.OnPlateRemoved += PlatesCounter_OnPlateRemoved;
+    }
+
+    private void PlatesCounter_OnPlateSpawned(object sender, EventArgs e)
+    {
+        Transform plateVisualTransform = Instantiate(plateVisualPrefab, counterTopPoint);
+
+        float plateOffset = .1f;
+        plateVisualTransform.localPosition = new UnityEngine.Vector3(0, plateOffset * plateVisualGameObjectList.Count, 0);
+
+        plateVisualGameObjectList.Add(plateVisualTransform.gameObject);
+    }
+
+    private void PlatesCounter_OnPlateRemoved(object sender, EventArgs e)
+    {
+        GameObject plateGameObject = plateVisualGameObjectList[plateVisualGameObjectList.Count - 1];
+        plateVisualGameObjectList.Remove(plateGameObject);
+        Destroy(plateGameObject);
+    }
+}
+
+```
+
 
 
 
