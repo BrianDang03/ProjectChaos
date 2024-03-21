@@ -43,7 +43,7 @@
 ### 1. BaseCounter.cs
 
 #### Description
-This class represents a base counter object in a kitchen environment in a game. It implements functionality related to interactions with kitchen objects.
+This class represents a base counter object. It implements functionality related to interactions with kitchen objects.
 
 #### Inherits from
 - `MonoBehaviour`
@@ -136,7 +136,7 @@ public class BaseCounter : MonoBehaviour, IKitchenObjectParent
 ### 2. ClearCounter.cs
 
 #### Description
-This class represents a specific type of counter object. It inherits functionality from the `BaseCounter` class and implements custom interaction behavior.
+This class represents a specific type of counter object. It inherits functionality from the `BaseCounter` class and implements custom interaction behavior. It is an empty counter for placing kitchen objects on.
 
 #### Inherits from
 - `BaseCounter`
@@ -223,7 +223,7 @@ public class ClearCounter : BaseCounter
 ### 3. ContainerCounter.cs
 
 #### Description
-This class represents a specific type of counter object in a kitchen environment in a game. It inherits functionality from the `BaseCounter` class and implements custom interaction behavior.
+This class represents a specific type of counter object. It inherits functionality from the `BaseCounter` class and implements custom interaction behavior. It is responsible for spawning in kitchen objects when the player interacts with it.
 
 #### Inherits from
 - `BaseCounter`
