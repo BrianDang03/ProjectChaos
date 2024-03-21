@@ -39,7 +39,7 @@
       - ProgressBarUI.cs
 ---
 ## Counters
-
+---
 ### 1. BaseCounter.cs
 
 #### Description
@@ -132,7 +132,8 @@ public class BaseCounter : MonoBehaviour, IKitchenObjectParent
 }
 
 ```
-### 2. ClearCounter Class
+---
+### 2. ClearCounter.cs
 
 #### Description
 This class represents a specific type of counter object. It inherits functionality from the `BaseCounter` class and implements custom interaction behavior.
