@@ -27,7 +27,7 @@
      - [7. RecipeSO.cs](README.md#7-recipesocs)
    -  UI
       - [DeliveryManagerSingleUI.cs](README.md#1-deliverymanagersingleuics)
-      - DeliveryMangaerUI.cs
+      - [DeliveryManagerUI.cs](README.md#2-deliverymanageruics)
       - GameOverUI.cs
       - GamePauseUI.cs
       - GamePlayingClockUI.cs
@@ -1606,3 +1606,85 @@ public class DeliveryManagerSingleUI : MonoBehaviour
 ```
 
 ---
+# [2. DeliveryManagerUI.cs](README.md#1-scripts)
+
+## Description
+This script manages the user interface (UI) for the delivery manager in game. It displays a list of waiting recipes and updates the UI when new recipes are spawned or completed.
+
+## Inherits from
+- `MonoBehaviour`
+
+## Fields
+- `public Transform container`: Container for holding the list of waiting recipes in the UI.
+- `public Transform recipeTemplate`: Template object for displaying individual recipe details in the UI.
+
+## Methods
+- `void Awake()`: Called when the script instance is being loaded.
+- `void Start()`: Called before the first frame update.
+- `void DelieveryManager_OnRecipeSpawned(object sender, EventArgs e)`: Event handler for the `OnRecipeSpawned` event triggered by the `DeliveryManager`.
+- `void DelieveryManager_OnRecipeCompleted(object sender, EventArgs e)`: Event handler for the `OnRecipeCompleted` event triggered by the `DeliveryManager`.
+- `void UpdateVisual()`: Updates the visual representation of the delivery manager UI based on the current list of waiting recipes.
+
+## Usage
+This script is attached to a GameObject in the scene representing the delivery manager UI. It listens for events triggered by the `DeliveryManager` and updates the UI accordingly.
+
+## Notes
+- The `recipeTemplate` serves as a template for creating individual recipe entries in the UI. It is set as inactive in the hierarchy to prevent it from being displayed directly.
+- When the game starts, the script subscribes to the `OnRecipeSpawned` and `OnRecipeCompleted` events triggered by the `DeliveryManager`. It then updates the UI to display the initial list of waiting recipes.
+- The `UpdateVisual` method clears the current UI representation and dynamically instantiates UI elements for each waiting recipe obtained from the `DeliveryManager`.
+- Each instantiated recipe UI element is populated using the `SetRecipeSO` method of the `DeliveryManagerSingleUI` component attached to it, which sets the recipe information to be displayed.
+
+#### Code
+```
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using Unity.VisualScripting;
+using UnityEngine;
+
+public class DeliveryManagerUI : MonoBehaviour
+{
+    [SerializeField] private Transform container;
+    [SerializeField] private Transform recipeTemplate;
+
+    private void Awake()
+    {
+        recipeTemplate.gameObject.SetActive(false);
+    }
+
+    private void Start()
+    {
+        DeliveryManager.Instance.OnRecipeSpawned += DelieveryManager_OnRecipeSpawned;
+        DeliveryManager.Instance.OnRecipeCompleted += DelieveryManager_OnRecipeCompleted;
+
+        UpdateVisual();
+    }
+
+    private void DelieveryManager_OnRecipeSpawned(object sender, EventArgs e)
+    {
+        UpdateVisual();
+    }
+
+    private void DelieveryManager_OnRecipeCompleted(object sender, EventArgs e)
+    {
+        UpdateVisual();
+    }
+
+    private void UpdateVisual()
+    {
+        foreach (Transform child in container)
+        {
+            if (child == recipeTemplate) continue;
+            Destroy(child.gameObject);
+        }
+
+        foreach (RecipeSO recipeSO in DeliveryManager.Instance.GetWaitingRecipeSOList())
+        {
+            Transform recipeTransform = Instantiate(recipeTemplate, container);
+            recipeTransform.gameObject.SetActive(true);
+            recipeTransform.GetComponent<DeliveryManagerSingleUI>().SetRecipeSO(recipeSO);
+        }
+    }
+}
+
+```
