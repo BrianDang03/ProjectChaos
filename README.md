@@ -8,8 +8,8 @@
      - [ClearConter.cs](README.md#2-clearcountercs)
      - [ContainerCounter.cs](README.md#3-containercountercs)
        - [ContainerCounterVisual.cs](README.md#3a-containercountervisualcs)
-     - [CuttingCoutner.cs](README.md#4-cuttingcoutner.cs)
-       - CuttingCounterVisual.cs
+     - [CuttingCounter.cs](README.md#4-cuttingcounter.cs)
+       - [CuttingCounterVisual.cs](README.md#4a-cuttingcountervisual.cs)
      - DeliveryCounter.cs
      - PlateCounter.cs
        - PlateCounterVisual.cs
