@@ -16,7 +16,7 @@
      - [StoveCounter.cs](README.md#7-stovecountercs)
        - [StoveCounterVisual.cs](README.md#7a-stovecountervisualcs) 
        - [StoveCounterSound.cs](README.md#7b-stovecountersoundcs)
-     - TrashCounter.cs
+     - [TrashCounter.cs](README.md#8-trashcountercs)
    - ScriptableObjects
      - AudioClipRefsSO.cs
      - BurningRecipeSO.cs
