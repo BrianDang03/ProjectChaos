@@ -1124,7 +1124,7 @@ public class StoveCounterVisual : MonoBehaviour
 }
 ```
 
-### 7b. StoveCounterSound Class
+### 7b. StoveCounterSound.cs
 
 #### Description
 This class represents the sound component of a stove counter object. It listens to the `OnStateChanged` event from a `StoveCounter` instance and plays or pauses the associated audio source based on the state of the stove.
