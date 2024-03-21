@@ -33,7 +33,7 @@
       - [5. GamePlayingClockUI.cs](README.md#5-gameplayingclockuics)
       - [6. GameStartCountdownUI.cs](README.md#6-gamestartcountdownuics)
       - [7. MainMenuUI.cs](README.md#7-mainmenuuics)
-      - OptionsUI.cs
+      - [8. OptionsUI.cs](README.md#8-optionsuics)
       - PlateIconsSingleUI.cs
       - PlateIconUI.cs
       - ProgressBarUI.cs
@@ -2017,6 +2017,115 @@ public class MainMenuUI : MonoBehaviour
         });
 
         Time.timeScale = 1f;
+    }
+}
+
+```
+
+---
+### [8. OptionsUI.cs](README.md#1-scripts)
+
+#### Description
+This script manages the options user interface (UI) functionality. It allows the player to adjust sound effects and music volume settings. Additionally, it provides a button to close the options menu.
+
+#### Inherits from
+- `MonoBehaviour`
+
+#### Properties
+- `public static OptionsUI Instance`: Singleton instance of the OptionsUI class.
+
+#### Fields
+- `public Button soundEffectsButton`: Button component representing the sound effects volume adjustment button.
+- `public Button musicButton`: Button component representing the music volume adjustment button.
+- `public Button closeButton`: Button component representing the close button for the options menu.
+- `public TextMeshProUGUI soundEffectsText`: TextMeshProUGUI component displaying the current sound effects volume.
+- `public TextMeshProUGUI musicText`: TextMeshProUGUI component displaying the current music volume.
+
+#### Methods
+- `void Awake()`: Called when the script instance is being loaded. Initializes the singleton instance, subscribes to button click events, and updates the visual representation of sound effects and music volume settings.
+- `void Start()`: Called before the first frame update. Subscribes to the game unpaused event and initializes the visual representation of volume settings. Hides the options menu.
+- `void KitchenGameManager_OnGameUnpaused(object sender, EventArgs e)`: Event handler for the game unpaused event. Hides the options menu.
+- `void UpdateVisual()`: Updates the visual representation of sound effects and music volume settings.
+- `public void Show()`: Displays the options menu.
+- `private void Hide()`: Hides the options menu.
+
+#### Usage
+This script is attached to a GameObject representing the options menu in the game. It requires Button and TextMeshProUGUI components for sound effects, music, and close buttons, as well as text displays for volume settings. The `Awake` method initializes the singleton instance and subscribes to button click events for adjusting volume settings. The `Start` method initializes the visual representation of volume settings and subscribes to the game unpaused event. The `Show` method displays the options menu, and the `Hide` method hides it.
+
+#### Notes
+- The `Awake` method sets up the singleton pattern to ensure that only one instance of the OptionsUI class exists throughout the game.
+- Button click event listeners are used to adjust sound effects and music volume settings. These methods also update the visual representation of volume settings.
+- The `KitchenGameManager_OnGameUnpaused` method hides the options menu when the game is unpaused.
+
+#### Code
+```
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class OptionsUI : MonoBehaviour
+{
+    public static OptionsUI Instance { get; private set; }
+
+    [SerializeField] private Button soundEffectsButton;
+    [SerializeField] private Button musicButton;
+    [SerializeField] private Button closeButton;
+
+    [SerializeField] private TextMeshProUGUI soundEffectsText;
+    [SerializeField] private TextMeshProUGUI musicText;
+
+    private void Awake()
+    {
+        Instance = this;
+
+        soundEffectsButton.onClick.AddListener(() =>
+        {
+            SoundManager.Instance.ChangeVolume();
+            UpdateVisual();
+        });
+        musicButton.onClick.AddListener(() =>
+        {
+            MusicManager.Instance.ChangeVolume();
+            UpdateVisual();
+        });
+        closeButton.onClick.AddListener(() =>
+        {
+            Hide();
+        });
+    }
+
+    private void Start()
+    {
+        KitchenGameManager.Instance.OnGameUnpaused += KitchenGameManager_OnGameUnpaused;
+
+        UpdateVisual();
+
+        Hide();
+    }
+
+    private void KitchenGameManager_OnGameUnpaused(object sender, EventArgs e)
+    {
+        Hide();
+    }
+
+    private void UpdateVisual()
+    {
+        soundEffectsText.text = "Sound Effects: " + Math.Round(SoundManager.Instance.GetVolume() * 10f);
+        musicText.text = "Music: " + Math.Round(MusicManager.Instance.GetVolume() * 10f);
+
+    }
+
+    public void Show()
+    {
+        gameObject.SetActive(true);
+    }
+
+    private void Hide()
+    {
+        gameObject.SetActive(false);
     }
 }
 
