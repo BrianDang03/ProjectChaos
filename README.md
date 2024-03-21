@@ -23,7 +23,7 @@
      - [3. CuttingRecipeSO.cs](README.md#3-cuttingrecipesocs)
      - [4. FryingRecipeSO.cs](README.md#4-fryingrecipesocs)
      - [5. KitchenObjectSO.cs](README.md#5-kitchenobjectsocs)
-     - [6. RecipeListSO.cs](README.md6-recipelistsocs)
+     - [6. RecipeListSO.cs](README.md#6-recipelistsocs)
      - RecipeSO.cs
    -  UI
       - DeliveryManagerSingleUI.cs
