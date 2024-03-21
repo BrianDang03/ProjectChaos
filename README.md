@@ -5,8 +5,8 @@
 ### 1. Scripts
    - Counters
      - [BaseCounter.cs](README.md#1-basecountercs)
-     - [CLearConter.cs](README.md#2-clearcountercs)
-     - ContainerCounter.cs
+     - [ClearConter.cs](README.md#2-clearcountercs)
+     - [ContainerCounter.cs](README.md#3-containercountercs)
        - ContainerCounterVisual.cs
      - CuttingCoutner.cs
        - CuttingCounterVisual.cs
