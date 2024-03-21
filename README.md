@@ -31,7 +31,7 @@
       - [3. GameOverUI.cs](README.md#3-gameoveruics)
       - [4. GamePauseUI.cs](README.md#4-gamepauseuics)
       - [5. GamePlayingClockUI.cs](README.md#5-gameplayingclockuics)
-      - GameStartCountdownUI.cs
+      - [GameStartCountdownUI.cs](README.md#6-gamestartcountdownuics)
       - MainMenuUI.cs
       - OptionsUI.cs
       - PlateIconsSingleUI.cs
@@ -1890,5 +1890,81 @@ public class GamePlayingClockUI : MonoBehaviour
         timerImage.fillAmount = KitchenGameManager.Instance.GetGamePlayingTimerNormalized();
     }
 }
-
 ```
+
+---
+### [6. GameStartCountdownUI.cs](README.md#1-scripts)
+
+#### Description
+This script manages the user interface (UI) for displaying a countdown timer before the start of the game. It updates the countdown text based on the remaining time until the game starts.
+
+#### Inherits from
+- `MonoBehaviour`
+
+#### Fields
+- `public TextMeshProUGUI countdownText`: TextMeshProUGUI component representing the countdown text.
+
+#### Methods
+- `void Start()`: Called before the first frame update. Subscribes to the `OnStateChanged` event triggered by the `KitchenGameManager`.
+- `void Update()`: Called once per frame. Updates the countdown text with the remaining time until the game starts.
+- `void KitchenGameManager_OnStateChanged(object sender, EventArgs e)`: Event handler for the `OnStateChanged` event triggered by the `KitchenGameManager`.
+- `void Show()`: Displays the countdown UI.
+- `void Hide()`: Hides the countdown UI.
+
+#### Usage
+This script is attached to a GameObject in the scene representing the countdown UI. It requires a TextMeshProUGUI component to display the countdown text. During the countdown to the start of the game, the `Update` method continuously updates the countdown text based on the remaining time obtained from the `KitchenGameManager`. The countdown UI is shown or hidden based on the state of the countdown to start as indicated by the `KitchenGameManager`.
+
+#### Notes
+- The `Start` method subscribes to the `OnStateChanged` event triggered by the `KitchenGameManager`. When the game's state changes to the countdown to start active, the countdown UI is shown.
+- The `Update` method retrieves the remaining time until the game starts from the `KitchenGameManager` and updates the countdown text accordingly.
+- The `KitchenGameManager_OnStateChanged` method toggles the visibility of the countdown UI based on the state of the countdown to start as indicated by the `KitchenGameManager`.
+
+#### Code
+```
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using TMPro;
+using UnityEditor.Search;
+using UnityEngine;
+
+public class GameStartCountdownUI : MonoBehaviour
+{
+    [SerializeField] private TextMeshProUGUI countdownText;
+
+    private void Start()
+    {
+        KitchenGameManager.Instance.OnStateChanged += KitchenGameManager_OnStateChanged;
+
+        Hide();
+    }
+
+    private void Update()
+    {
+        countdownText.text = Mathf.Ceil(KitchenGameManager.Instance.GetCountdownToStatTimer()).ToString();
+    }
+
+    private void KitchenGameManager_OnStateChanged(object sender, EventArgs e)
+    {
+        if (KitchenGameManager.Instance.IsCountdownToStartActive())
+        {
+            Show();
+        }
+        else
+        {
+            Hide();
+        }
+    }
+
+    private void Show()
+    {
+        gameObject.SetActive(true);
+    }
+
+    private void Hide()
+    {
+        gameObject.SetActive(false);
+    }
+}
+```
+
