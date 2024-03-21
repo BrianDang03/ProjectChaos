@@ -832,6 +832,363 @@ public class PlatesCounterVisual : MonoBehaviour
 
 ```
 
+---
+### 7. StoveCounter.cs
+
+#### Description
+This class represents a stove counter object. It inherits functionality from the `BaseCounter` class and implements behavior specific to frying and burning recipes.
+
+#### Inherits from
+- `BaseCounter`
+- `IHasProgress`
+
+#### Events
+- `public event EventHandler<IHasProgress.OnProgressChangedEventArgs> OnProgressChanged`: Event triggered when the progress of frying or burning changes.
+- `public event EventHandler<OnStateChangedEventArgs> OnStateChanged`: Event triggered when the state of the stove counter changes.
+    - `public class OnStateChangedEventArgs : EventArgs`
+        - `public State state`: The current state of the stove counter.
+
+#### Fields
+- `[SerializeField] private FryingRecipeSO[] fryingRecipeSOArray`: Serialized array of `FryingRecipeSO` instances representing the frying recipes available for this stove counter.
+- `[SerializeField] private BuringRecipeSO[] burningRecipeSOArray`: Serialized array of `BuringRecipeSO` instances representing the burning recipes available for this stove counter.
+- `private State state`: Enum representing the current state of the stove counter (Idle, Frying, Fried, Burned).
+- `private float fryingTimer`: Timer for tracking the frying progress.
+- `private FryingRecipeSO fryingRecipeSO`: Reference to the frying recipe currently being processed.
+- `private float buringTimer`: Timer for tracking the burning progress.
+- `private BuringRecipeSO burningRecipeSO`: Reference to the burning recipe currently being processed.
+
+#### Methods
+- `private void Start()`: Unity lifecycle method called before the first frame update. Initializes the stove counter state to Idle.
+- `private void Update()`: Unity lifecycle method called once per frame. Updates the progress of frying or burning based on the current state of the stove counter.
+- `public override void Interact(Player player)`: Overrides the base class method to implement interaction behavior when a player interacts with the stove counter.
+    - Handles interactions such as placing ingredients, frying, and removing cooked items.
+- `private bool HasRecipeWithInput(KitchenObjectSO inputKitchenObjectSO)`: Checks if there is a frying recipe available for the input kitchen object.
+- `private KitchenObjectSO GetOutputForInput(KitchenObjectSO inputKitchenObjectSO)`: Retrieves the output kitchen object associated with the input kitchen object from the frying recipe.
+- `private FryingRecipeSO GetFryingRecipeSOWithInput(KitchenObjectSO inputKitchenObjectSO)`: Retrieves the frying recipe that matches the input kitchen object from the array of frying recipes.
+- `private BuringRecipeSO GetBurningRecipeSOWithInput(KitchenObjectSO inputKitchenObjectSO)`: Retrieves the burning recipe that matches the input kitchen object from the array of burning recipes.
+
+#### Usage
+This class is used to define the behavior of a stove counter in the game environment, allowing players to fry and burn ingredients to create cooked items.
+
+## Notes
+- This class extends functionality from the `BaseCounter` class and implements the `IHasProgress` interface to track progress.
+- It manages the state of the stove counter and processes frying and burning recipes based on player interactions.
+- Events are used to notify other game systems or objects when the progress or state of the stove counter changes.
+
+#### Code
+```
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Xml.Serialization;
+using Unity.VisualScripting;
+using UnityEngine;
+
+public class StoveCounter : BaseCounter, IHasProgress
+{
+
+    public event EventHandler<IHasProgress.OnProgressChangedEventArgs> OnProgressChanged;
+    public event EventHandler<OnStateChangedEventArgs> OnStateChanged;
+    public class OnStateChangedEventArgs : EventArgs
+    {
+        public State state;
+    }
+
+    public enum State
+    {
+        Idle,
+        Frying,
+        Fried,
+        Burned,
+    }
+
+    [SerializeField] private FryingRecipeSO[] fryingRecipeSOArray;
+    [SerializeField] private BuringRecipeSO[] burningRecipeSOArray;
+
+    private State state;
+    private float fryingTimer;
+    private FryingRecipeSO fryingRecipeSO;
+    private float buringTimer;
+    private BuringRecipeSO burningRecipeSO;
+
+    private void Start()
+    {
+        state = State.Idle;
+    }
+
+    private void Update()
+    {
+        if (HasKitchenObject())
+        {
+            switch (state)
+            {
+                case State.Idle:
+                    break;
+                case State.Frying:
+                    fryingTimer += Time.deltaTime;
+                    OnProgressChanged?.Invoke(this, new IHasProgress.OnProgressChangedEventArgs { progressNormalized = fryingTimer / fryingRecipeSO.fryingTimerMax });
+
+                    if (fryingTimer >= fryingRecipeSO.fryingTimerMax)
+                    {
+                        //Fried
+                        fryingTimer = 0f;
+                        GetKitchenObject().DestorySelf();
+
+                        KitchenObject.SpawnKitchenObject(fryingRecipeSO.output, this);
+
+                        buringTimer = 0f;
+                        state = State.Fried;
+                        burningRecipeSO = GetBurningRecipeSOWithInput(GetKitchenObject().GetKitchenObjectSO());
+
+                        OnStateChanged?.Invoke(this, new OnStateChangedEventArgs { state = state });
+                    }
+                    break;
+                case State.Fried:
+                    buringTimer += Time.deltaTime;
+
+                    OnStateChanged?.Invoke(this, new OnStateChangedEventArgs { state = state });
+
+                    OnProgressChanged?.Invoke(this, new IHasProgress.OnProgressChangedEventArgs { progressNormalized = buringTimer / burningRecipeSO.burningTimerMax });
+
+                    if (buringTimer >= burningRecipeSO.burningTimerMax)
+                    {
+                        //Fried
+                        buringTimer = 0f;
+                        GetKitchenObject().DestorySelf();
+
+                        KitchenObject.SpawnKitchenObject(burningRecipeSO.output, this);
+
+                        state = State.Burned;
+
+                        OnStateChanged?.Invoke(this, new OnStateChangedEventArgs { state = state });
+
+                        OnProgressChanged?.Invoke(this, new IHasProgress.OnProgressChangedEventArgs { progressNormalized = 0f });
+                    }
+                    break;
+                case State.Burned:
+                    break;
+            }
+
+        }
+    }
+
+    public override void Interact(Player player)
+    {
+        if (!HasKitchenObject())
+        {
+            //There is not Kitchen Object Here
+            if (player.HasKitchenObject())
+            {
+                if (HasRecipeWithInput(player.GetKitchenObject().GetKitchenObjectSO()))
+                {
+                    player.GetKitchenObject().SetKitchenObjectParent(this);
+
+                    fryingRecipeSO = GetFryingRecipeSOWithInput(GetKitchenObject().GetKitchenObjectSO());
+
+                    state = State.Frying;
+                    fryingTimer = 0f;
+                    OnStateChanged?.Invoke(this, new OnStateChangedEventArgs { state = state });
+                }
+            }
+            else
+            {
+                //Player has Nothing
+            }
+        }
+        else
+        {
+            //There is a Kitchen Object Here
+            if (player.HasKitchenObject())
+            {
+                //Playaer is Carrying Something
+                if (player.GetKitchenObject().TryGetPlate(out PlateKitchenObject plateKitchenObject))
+                {
+                    //Player is Holding a Plate
+                    if (plateKitchenObject.TryAddIngredient(GetKitchenObject().GetKitchenObjectSO()))
+                    {
+                        GetKitchenObject().DestorySelf();
+
+                        state = State.Idle;
+                        OnStateChanged?.Invoke(this, new OnStateChangedEventArgs { state = state });
+                        OnProgressChanged?.Invoke(this, new IHasProgress.OnProgressChangedEventArgs { progressNormalized = 0f });
+                    }
+                }
+            }
+            else
+            {
+                //Player is not Carrying Anything
+                GetKitchenObject().SetKitchenObjectParent(player);
+                state = State.Idle;
+                OnStateChanged?.Invoke(this, new OnStateChangedEventArgs { state = state });
+                OnProgressChanged?.Invoke(this, new IHasProgress.OnProgressChangedEventArgs { progressNormalized = 0f });
+            }
+        }
+    }
+
+    private bool HasRecipeWithInput(KitchenObjectSO inputKitchenObjectSO)
+    {
+        FryingRecipeSO fryingRecipeSO = GetFryingRecipeSOWithInput(inputKitchenObjectSO);
+
+        return fryingRecipeSO != null;
+    }
+
+    private KitchenObjectSO GetOutputForInput(KitchenObjectSO inputKitchenObjectSO)
+    {
+        FryingRecipeSO fryingRecipeSO = GetFryingRecipeSOWithInput(inputKitchenObjectSO);
+
+        if (fryingRecipeSO != null)
+        {
+            return fryingRecipeSO.output;
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+    private FryingRecipeSO GetFryingRecipeSOWithInput(KitchenObjectSO inputKitchenObjectSO)
+    {
+        foreach (FryingRecipeSO fryingRecipeSO in fryingRecipeSOArray)
+        {
+            if (fryingRecipeSO.input == inputKitchenObjectSO)
+            {
+                return fryingRecipeSO;
+            }
+        }
+
+        return null;
+    }
+
+    private BuringRecipeSO GetBurningRecipeSOWithInput(KitchenObjectSO inputKitchenObjectSO)
+    {
+        foreach (BuringRecipeSO burningRecipeSO in burningRecipeSOArray)
+        {
+            if (burningRecipeSO.input == inputKitchenObjectSO)
+            {
+                return burningRecipeSO;
+            }
+        }
+
+        return null;
+    }
+}
+```
+
+### 7a. StoveCounterVisual.cs
+
+#### Description
+This class represents the visual component of a stove counter object. It listens to the `OnStateChanged` event from a `StoveCounter` instance and updates the visual representation of the stove accordingly.
+
+#### Inherits from
+- `MonoBehaviour`
+
+#### Fields
+- `[SerializeField] private StoveCounter stoveCounter`: Reference to the `StoveCounter` instance associated with this visual component.
+- `[SerializeField] private GameObject stoveOnGameObject`: Reference to the GameObject representing the stove's visual when it is turned on.
+- `[SerializeField] private GameObject particle`: Reference to the particle GameObject representing the visual effect of the stove when it is active.
+
+#### Methods
+- `private void Start()`: Unity lifecycle method called before the first frame update. Subscribes to the `OnStateChanged` event of the associated `StoveCounter` instance.
+- `private void StoveCounter_OnStateChanged(object sender, StoveCounter.OnStateChangedEventArgs e)`: Event handler method triggered when the state of the stove counter changes. Updates the visual representation of the stove based on the new state.
+
+#### Usage
+This class is used to manage the visual representation of a stove counter object in the game environment. It listens to events triggered by the `StoveCounter` instance and updates the visual representation accordingly.
+
+#### Notes
+- This class ensures that the visual representation of the stove counter remains synchronized with the state changes of the associated `StoveCounter`.
+- It controls the visibility of the stove's visual and particle effects based on whether the stove is frying or has finished frying.
+
+#### Code
+```
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class StoveCounterVisual : MonoBehaviour
+{
+    [SerializeField] private StoveCounter stoveCounter;
+    [SerializeField] private GameObject stoveOnGameObject;
+    [SerializeField] private GameObject particle;
+
+    private void Start()
+    {
+        stoveCounter.OnStateChanged += StoveCounter_OnStateChanged;
+    }
+
+    private void StoveCounter_OnStateChanged(object sender, StoveCounter.OnStateChangedEventArgs e)
+    {
+        bool showVisual = e.state == StoveCounter.State.Frying || e.state == StoveCounter.State.Fried;
+        stoveOnGameObject.SetActive(showVisual);
+        particle.SetActive(showVisual);
+    }
+}
+```
+
+### 7b. StoveCounterSound Class
+
+#### Description
+This class represents the sound component of a stove counter object. It listens to the `OnStateChanged` event from a `StoveCounter` instance and plays or pauses the associated audio source based on the state of the stove.
+
+#### Inherits from
+- `MonoBehaviour`
+
+#### Fields
+- `[SerializeField] private StoveCounter stoveCounter`: Reference to the `StoveCounter` instance associated with this sound component.
+- `private AudioSource audioSource`: Reference to the AudioSource component attached to this GameObject.
+
+#### Methods
+- `private void Awake()`: Unity lifecycle method called when the script instance is being loaded. Initializes the audio source component.
+- `private void Start()`: Unity lifecycle method called before the first frame update. Subscribes to the `OnStateChanged` event of the associated `StoveCounter` instance.
+- `void StoveCounter_OnStateChanged(object sender, StoveCounter.OnStateChangedEventArgs e)`: Event handler method triggered when the state of the stove counter changes. Plays or pauses the audio source based on the new state.
+
+#### Usage
+This class is used to manage the sound effects associated with a stove counter object in the game environment. It listens to events triggered by the `StoveCounter` instance and plays or pauses the associated audio source accordingly.
+
+#### Notes
+- This class ensures that the sound effects of the stove counter remain synchronized with the state changes of the associated `StoveCounter`.
+- It plays the sound effect when the stove is frying or has finished frying, and pauses the sound when the stove is idle or burned.
+
+#### Code
+```
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class StoveCounterSound : MonoBehaviour
+{
+    [SerializeField] private StoveCounter stoveCounter;
+    private AudioSource audioSource;
+
+    private void Awake()
+    {
+        audioSource = GetComponent<AudioSource>();
+    }
+
+    private void Start()
+    {
+        stoveCounter.OnStateChanged += StoveCounter_OnStateChanged;
+    }
+
+    void StoveCounter_OnStateChanged(object sender, StoveCounter.OnStateChangedEventArgs e)
+    {
+        bool playSound = e.state == StoveCounter.State.Frying || e.state == StoveCounter.State.Fried;
+
+        if (playSound)
+        {
+            audioSource.Play();
+        }
+        else
+        {
+            audioSource.Pause();
+        }
+    }
+}
+
+```
+
+
+
 
 
 
