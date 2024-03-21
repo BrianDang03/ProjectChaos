@@ -28,7 +28,7 @@
    -  UI
       - [1. DeliveryManagerSingleUI.cs](README.md#1-deliverymanagersingleuics)
       - [2. DeliveryManagerUI.cs](README.md#2-deliverymanageruics)
-      - [3. GameOverUI.cs](README.md#3-gameoverui)
+      - [3. GameOverUI.cs](README.md#3-gameoveruics)
       - GamePauseUI.cs
       - GamePlayingClockUI.cs
       - GameStartCountdownUI.cs
