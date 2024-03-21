@@ -379,6 +379,185 @@ public class ContainerCounterVisual : MonoBehaviour
 }
 ```
 
+---
+### 4. CuttingCounter.cs
+
+#### Description
+This class represents a specific type of counter object. It inherits functionality from the `BaseCounter` class and implements cutting behavior for kitchen objects placed on the counter.
+
+#### Inherits from
+- `BaseCounter`
+
+#### Events
+- `public static EventHandler OnAnyCut`: Static event triggered when any cutting action occurs.
+
+#### Fields
+- `[SerializeField] private CuttingRecipeSO[] cuttingRecipeSOArray`: Serialized array of CuttingRecipeSO instances representing the cutting recipes available for this counter.
+- `private int cuttingProgress`: Integer representing the progress of the cutting action.
+
+#### Methods
+- `new public static void ResetStaticData()`: Hides the static method `ResetStaticData()` of the base class and resets static data specific to this class.
+- `public override void Interact(Player player)`: Overrides the base class method to implement interaction behavior when a player interacts with the counter.
+    - If there is no kitchen object on the counter:
+        - If the player is carrying a kitchen object, it sets the counter as the parent for that object and resets the cutting progress.
+        - Otherwise, it does nothing.
+    - If there is a kitchen object on the counter:
+        - If the player is carrying a kitchen object:
+            - If the player is carrying a plate, it tries to add ingredients from the counter's kitchen object to the plate. If successful, it destroys the counter's kitchen object.
+            - If the counter's kitchen object is a plate, it tries to add ingredients from the player's kitchen object to the plate. If successful, it destroys the player's kitchen object.
+        - If the player is not carrying a kitchen object, it sets the player as the parent for the counter's kitchen object and triggers an event to notify progress change.
+- `public override void InteractAlternate(Player player)`: Overrides the base class method to implement alternate interaction behavior when a player interacts with the counter.
+    - If there is a kitchen object on the counter and there is a cutting recipe matching the input kitchen object:
+        - Increments the cutting progress.
+        - Triggers events related to cutting actions and progress change.
+        - If the cutting progress reaches the maximum, spawns a new kitchen object based on the cutting recipe.
+- `private bool HasRecipeWithInput(KitchenObjectSO inputKitchenObjectSO)`: Checks if there is a cutting recipe available for the input kitchen object.
+- `private KitchenObjectSO GetOutputForInput(KitchenObjectSO inputKitchenObjectSO)`: Retrieves the output kitchen object associated with the input kitchen object from the cutting recipe.
+- `private CuttingRecipeSO GetCuttingRecipeSOWithInput(KitchenObjectSO inputKitchenObjectSO)`: Retrieves the cutting recipe that matches the input kitchen object from the array of cutting recipes.
+
+#### Usage
+This class is used to define the behavior of a specific type of counter in the game environment, allowing players to perform cutting actions on kitchen objects placed on the counter.
+
+#### Notes
+- This class extends functionality from the `BaseCounter` class, providing additional behavior specific to cutting actions in the game.
+- It manages cutting progress, triggers events related to cutting actions, and handles the application of cutting recipes to kitchen objects.
+
+#### Code
+```
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.EventSystems;
+
+public class CuttingCounter : BaseCounter, IHasProgress
+{
+
+    public static EventHandler OnAnyCut;
+
+    new public static void ResetStaticData()
+    {
+        OnAnyCut = null;
+    }
+
+    public event EventHandler<IHasProgress.OnProgressChangedEventArgs> OnProgressChanged;
+    public event EventHandler OnCut;
+
+    [SerializeField] private CuttingRecipeSO[] cuttingRecipeSOArray;
+
+    private int cuttingProgress;
+
+    public override void Interact(Player player)
+    {
+        if (!HasKitchenObject())
+        {
+            //There is not Kitchen Object Here
+            if (player.HasKitchenObject())
+            {
+                player.GetKitchenObject().SetKitchenObjectParent(this);
+                cuttingProgress = 0;
+            }
+            else
+            {
+                //Player has Nothing
+            }
+        }
+        else
+        {
+            //There is a Kitchen Object Here
+            if (player.HasKitchenObject())
+            {
+                //Playaer is Carrying Something
+                if (player.GetKitchenObject().TryGetPlate(out PlateKitchenObject plateKitchenObject))
+                {
+                    //Player is Holding a Plate
+                    if (plateKitchenObject.TryAddIngredient(GetKitchenObject().GetKitchenObjectSO()))
+                    {
+                        GetKitchenObject().DestorySelf();
+                    }
+                }
+                else if (GetKitchenObject().TryGetPlate(out plateKitchenObject))
+                {
+                    //Counter has Plate
+                    if (plateKitchenObject.TryAddIngredient(player.GetKitchenObject().GetKitchenObjectSO()))
+                    {
+                        player.GetKitchenObject().DestorySelf();
+                    }
+                }
+            }
+            else
+            {
+                //Player is not Carrying Anything
+                GetKitchenObject().SetKitchenObjectParent(player);
+                OnProgressChanged?.Invoke(this, new IHasProgress.OnProgressChangedEventArgs { progressNormalized = 0f });
+            }
+        }
+    }
+
+    public override void InteractAlternate(Player player)
+    {
+        if (HasKitchenObject() && HasRecipeWithInput(GetKitchenObject().GetKitchenObjectSO()))
+        {
+            //There is KitchenObject here
+            cuttingProgress++;
+
+            OnCut?.Invoke(this, EventArgs.Empty);
+            OnAnyCut?.Invoke(this, EventArgs.Empty);
+
+            CuttingRecipeSO cuttingRecipeSO = GetCuttingRecipeSOWithInput(GetKitchenObject().GetKitchenObjectSO());
+
+            OnProgressChanged?.Invoke(this, new IHasProgress.OnProgressChangedEventArgs
+            {
+                progressNormalized = (float)cuttingProgress / cuttingRecipeSO.cuttingProgressMax
+            });
+
+            if (cuttingProgress >= cuttingRecipeSO.cuttingProgressMax)
+            {
+                KitchenObjectSO outputKitchenObjectSO = GetOutputForInput(GetKitchenObject().GetKitchenObjectSO());
+                GetKitchenObject().DestorySelf();
+
+                KitchenObject.SpawnKitchenObject(outputKitchenObjectSO, this);
+            }
+        }
+    }
+
+    private bool HasRecipeWithInput(KitchenObjectSO inputKitchenObjectSO)
+    {
+        CuttingRecipeSO cuttingRecipeSO = GetCuttingRecipeSOWithInput(inputKitchenObjectSO);
+
+        return cuttingRecipeSO != null;
+    }
+
+    private KitchenObjectSO GetOutputForInput(KitchenObjectSO inputKitchenObjectSO)
+    {
+        CuttingRecipeSO cuttingRecipeSO = GetCuttingRecipeSOWithInput(inputKitchenObjectSO);
+
+        if (cuttingRecipeSO != null)
+        {
+            return cuttingRecipeSO.output;
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+    private CuttingRecipeSO GetCuttingRecipeSOWithInput(KitchenObjectSO inputKitchenObjectSO)
+    {
+        foreach (CuttingRecipeSO cuttingRecipeSO in cuttingRecipeSOArray)
+        {
+            if (cuttingRecipeSO.input == inputKitchenObjectSO)
+            {
+                return cuttingRecipeSO;
+            }
+        }
+
+        return null;
+    }
+}
+```
+
+
 
 
 
