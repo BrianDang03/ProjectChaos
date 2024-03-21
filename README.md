@@ -4,7 +4,7 @@
 
 ### 1. Scripts
    - Counters
-     - [BaseCounter.cs](README.md#L43)
+     - [BaseCounter.cs](README.md#1-basecountercs)
      - CLearConter.cs
      - ContainerCounter.cs
        - ContainerCounterVisual.cs
