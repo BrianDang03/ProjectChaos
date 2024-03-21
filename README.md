@@ -1384,26 +1384,26 @@ public class CuttingRecipeSO : ScriptableObject
 ```
 
 ---
-# [4. FryingRecipeSO.cs](README.md#1-scripts)
+### [4. FryingRecipeSO.cs](README.md#1-scripts)
 
-## Description
+#### Description
 This scriptable object represents a frying recipe. It defines the input kitchen object, output kitchen object, and the maximum frying timer allowed for the recipe to complete.
 
-## Inherits from
+#### Inherits from
 - `ScriptableObject`
 
-## Fields
+#### Fields
 - `public KitchenObjectSO input`: The input kitchen object required for the frying recipe.
 - `public KitchenObjectSO output`: The output kitchen object produced after the frying process.
 - `public float fryingTimerMax`: The maximum duration allowed for the frying process to complete.
 
-## Methods
+#### Methods
 - None
 
-## Usage
+#### Usage
 This scriptable object is used to define specific frying recipes in the game environment. It provides a structured way to store and manage frying recipes, including their input objects, output objects, and timing constraints.
 
-## Notes
+#### Notes
 - Frying recipes typically involve cooking certain kitchen objects in hot oil or on a heated surface until they reach a desired state or condition.
 - The `input` field specifies the kitchen object required for the frying recipe to start, while the `output` field defines the resulting kitchen object after the frying process is completed.
 - The `fryingTimerMax` field determines the maximum duration allowed for the frying process to complete, ensuring that the gameplay experience remains balanced and consistent.
