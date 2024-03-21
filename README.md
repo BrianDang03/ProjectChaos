@@ -1606,29 +1606,29 @@ public class DeliveryManagerSingleUI : MonoBehaviour
 ```
 
 ---
-# [2. DeliveryManagerUI.cs](README.md#1-scripts)
+### [2. DeliveryManagerUI.cs](README.md#1-scripts)
 
-## Description
+#### Description
 This script manages the user interface (UI) for the delivery manager in game. It displays a list of waiting recipes and updates the UI when new recipes are spawned or completed.
 
-## Inherits from
+#### Inherits from
 - `MonoBehaviour`
 
-## Fields
+#### Fields
 - `public Transform container`: Container for holding the list of waiting recipes in the UI.
 - `public Transform recipeTemplate`: Template object for displaying individual recipe details in the UI.
 
-## Methods
+#### Methods
 - `void Awake()`: Called when the script instance is being loaded.
 - `void Start()`: Called before the first frame update.
 - `void DelieveryManager_OnRecipeSpawned(object sender, EventArgs e)`: Event handler for the `OnRecipeSpawned` event triggered by the `DeliveryManager`.
 - `void DelieveryManager_OnRecipeCompleted(object sender, EventArgs e)`: Event handler for the `OnRecipeCompleted` event triggered by the `DeliveryManager`.
 - `void UpdateVisual()`: Updates the visual representation of the delivery manager UI based on the current list of waiting recipes.
 
-## Usage
+#### Usage
 This script is attached to a GameObject in the scene representing the delivery manager UI. It listens for events triggered by the `DeliveryManager` and updates the UI accordingly.
 
-## Notes
+#### Notes
 - The `recipeTemplate` serves as a template for creating individual recipe entries in the UI. It is set as inactive in the hierarchy to prevent it from being displayed directly.
 - When the game starts, the script subscribes to the `OnRecipeSpawned` and `OnRecipeCompleted` events triggered by the `DeliveryManager`. It then updates the UI to display the initial list of waiting recipes.
 - The `UpdateVisual` method clears the current UI representation and dynamically instantiates UI elements for each waiting recipe obtained from the `DeliveryManager`.
