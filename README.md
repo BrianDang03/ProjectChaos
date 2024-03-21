@@ -1304,7 +1304,7 @@ public class AudioClipRefsSO : ScriptableObject
 ```
 
 ---
-### [2. BurningRecipeSO.cs](READEME.md#1-scripts)
+### [2. BurningRecipeSO.cs](README.md#1-scripts)
 
 #### Description
 This scriptable object represents a burning recipe. It defines the input kitchen object, output kitchen object, and the maximum burning timer allowed for the recipe to complete.
