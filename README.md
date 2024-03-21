@@ -31,8 +31,8 @@
       - [3. GameOverUI.cs](README.md#3-gameoveruics)
       - [4. GamePauseUI.cs](README.md#4-gamepauseuics)
       - [5. GamePlayingClockUI.cs](README.md#5-gameplayingclockuics)
-      - [GameStartCountdownUI.cs](README.md#6-gamestartcountdownuics)
-      - [MainMenuUI.cs](README.md#7-mainmenuuics)
+      - [6. GameStartCountdownUI.cs](README.md#6-gamestartcountdownuics)
+      - [7. MainMenuUI.cs](README.md#7-mainmenuuics)
       - OptionsUI.cs
       - PlateIconsSingleUI.cs
       - PlateIconUI.cs
