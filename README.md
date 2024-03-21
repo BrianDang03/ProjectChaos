@@ -32,7 +32,7 @@
       - [4. GamePauseUI.cs](README.md#4-gamepauseuics)
       - [5. GamePlayingClockUI.cs](README.md#5-gameplayingclockuics)
       - [GameStartCountdownUI.cs](README.md#6-gamestartcountdownuics)
-      - MainMenuUI.cs
+      - [MainMenuUI.cs](README.md#7-mainmenuuics)
       - OptionsUI.cs
       - PlateIconsSingleUI.cs
       - PlateIconUI.cs
@@ -1966,5 +1966,59 @@ public class GameStartCountdownUI : MonoBehaviour
         gameObject.SetActive(false);
     }
 }
+```
+
+---
+### [7. MainMenuUI.cs](README.md#1-scripts)
+
+#### Description
+This script manages the user interface (UI) functionality for the main menu scene. It handles button clicks to start the game or quit the application.
+
+#### Inherits from
+- `MonoBehaviour`
+
+#### Fields
+- `public Button playButton`: Button component representing the play button in the main menu UI.
+- `public Button quitButton`: Button component representing the quit button in the main menu UI.
+
+#### Methods
+- `void Awake()`: Called when the script instance is being loaded. Subscribes to the click events of the play and quit buttons and sets the time scale to 1.
+
+#### Usage
+This script is attached to a GameObject in the main menu scene, typically associated with the main menu canvas. It requires Button components for the play and quit buttons. The `Awake` method subscribes to the click events of these buttons and sets the time scale to 1 to ensure normal game speed.
+
+#### Notes
+- The `Awake` method subscribes to the click events of the play and quit buttons. When the play button is clicked, it loads the main scene using the `Loader.Load` method. When the quit button is clicked, it quits the application using `Application.Quit`.
+- Setting the time scale to 1 ensures that the game runs at normal speed when transitioning from the main menu to the gameplay.
+
+#### Code
+```
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+
+public class MainMenuUI : MonoBehaviour
+{
+    [SerializeField] private Button playButton;
+    [SerializeField] private Button quitButton;
+
+    private void Awake()
+    {
+        playButton.onClick.AddListener(() =>
+        {
+            Loader.Load(Loader.Scene.Main);
+        });
+
+        quitButton.onClick.AddListener(() =>
+        {
+            Application.Quit();
+        });
+
+        Time.timeScale = 1f;
+    }
+}
+
 ```
 
