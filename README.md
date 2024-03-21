@@ -1187,6 +1187,69 @@ public class StoveCounterSound : MonoBehaviour
 
 ```
 
+---
+### 8. TrashCounter.cs
+
+#### Description
+This class represents a trash counter object. It inherits functionality from the `BaseCounter` class and implements behavior specific to trashing kitchen objects.
+
+#### Inherits from
+- `BaseCounter`
+
+#### Events
+- `public static EventHandler OnAnyObjectTrashed`: Event triggered when any object is trashed in the trash counter.
+
+#### Methods
+- `new public static void ResetStaticData()`: Overrides the base class method to reset static data. Resets the `OnAnyObjectTrashed` event to null.
+- `public override void Interact(Player player)`: Overrides the base class method to implement interaction behavior when a player interacts with the trash counter.
+    - If there is no kitchen object on the counter and the player is carrying a kitchen object:
+        - Destroys the kitchen object carried by the player.
+        - Triggers the `OnAnyObjectTrashed` event.
+
+#### Usage
+This class is used to define the behavior of a trash counter in the game environment, allowing players to dispose of unwanted kitchen objects.
+
+#### Notes
+- This class extends functionality from the `BaseCounter` class, providing behavior specific to trashing kitchen objects.
+- It handles player interactions with the trash counter and triggers events when objects are trashed.
+
+#### Code
+```
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class TrashCounter : BaseCounter
+{
+    public static EventHandler OnAnyObjectTrashed;
+
+    new public static void ResetStaticData()
+    {
+        OnAnyObjectTrashed = null;
+    }
+
+    public override void Interact(Player player)
+    {
+        if (!HasKitchenObject())
+        {
+            //There is not Kitchen Object Here
+            if (player.HasKitchenObject())
+            {
+                player.GetKitchenObject().DestorySelf();
+
+                OnAnyObjectTrashed?.Invoke(this, EventArgs.Empty);
+            }
+            else
+            {
+                //Player has Nothing
+            }
+        }
+    }
+}
+```
+
+
 
 
 
