@@ -34,7 +34,7 @@
       - [6. GameStartCountdownUI.cs](README.md#6-gamestartcountdownuics)
       - [7. MainMenuUI.cs](README.md#7-mainmenuuics)
       - [8. OptionsUI.cs](README.md#8-optionsuics)
-      - [PlateIconsSingleUI.cs](README.md#9-plateiconssingleuics)
+      - [9. PlateIconsSingleUI.cs](README.md#9-plateiconssingleuics)
       - PlateIconUI.cs
       - ProgressBarUI.cs
 ---
