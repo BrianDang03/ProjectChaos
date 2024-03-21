@@ -673,6 +673,92 @@ public class DeliveryCounter : BaseCounter
 
 ```
 
+---
+### 5. PlatesCounter Class
+
+#### Description
+This class represents a plates counter object. It inherits functionality from the `BaseCounter` class and implements behavior specific to spawning and removing plates.
+
+#### Inherits from
+- `BaseCounter`
+
+#### Events
+- `public event EventHandler OnPlateSpawned`: Event triggered when a plate is spawned on the plates counter.
+- `public event EventHandler OnPlateRemoved`: Event triggered when a plate is removed from the plates counter.
+
+#### Fields
+- `[SerializeField] private KitchenObjectSO plateKitchenObjectSO`: Serialized field representing the scriptable object for the plate kitchen object.
+- `[SerializeField] float spawnPlateTimerMax = 4f`: Maximum timer value for spawning plates.
+- `[SerializeField] private int platesSpawnedAmountMax = 4`: Maximum number of plates that can be spawned on the plates counter.
+
+#### Methods
+- `private void Update()`: Unity lifecycle method called once per frame. Updates the timer for spawning plates and spawns a plate if the timer exceeds the maximum value and the maximum number of plates has not been reached.
+- `public override void Interact(Player player)`: Overrides the base class method to implement interaction behavior when a player interacts with the plates counter.
+    - If the player is empty-handed and there are plates available on the counter:
+        - Removes a plate from the counter, spawns it to the player, and triggers the `OnPlateRemoved` event.
+
+#### Usage
+This class is used to define the behavior of a plate counter in the game environment, allowing players to interact with plates by picking them up from the plates counter.
+
+#### Notes
+- This class extends functionality from the `BaseCounter` class, providing behavior specific to managing plates in the game.
+- It tracks the number of plates spawned on the counter and controls the spawning and removal of plates based on player interactions.
+- Events are used to notify other game systems or objects when plates are spawned or removed from the plates counter.
+
+#### Code
+```
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class PlatesCounter : BaseCounter
+{
+    public event EventHandler OnPlateSpawned;
+    public event EventHandler OnPlateRemoved;
+
+    [SerializeField] private KitchenObjectSO plateKitchenObjectSO;
+    [SerializeField] float spawnPlateTimerMax = 4f;
+    [SerializeField] private int platesSpawnedAmountMax = 4;
+
+    private int platesSpawnedAmount;
+    private float spawnPlateTimer;
+
+    private void Update()
+    {
+        spawnPlateTimer += Time.deltaTime;
+        if (spawnPlateTimer > spawnPlateTimerMax)
+        {
+            spawnPlateTimer = 0f;
+
+            if (platesSpawnedAmount < platesSpawnedAmountMax)
+            {
+                platesSpawnedAmount++;
+                OnPlateSpawned?.Invoke(this, EventArgs.Empty);
+            }
+        }
+    }
+
+    public override void Interact(Player player)
+    {
+        if (!player.HasKitchenObject())
+        {
+            //If Player is Empty Handed
+            if (platesSpawnedAmount > 0)
+            {
+                //If there there is at least one plate
+                platesSpawnedAmount--;
+
+                OnPlateRemoved?.Invoke(this, EventArgs.Empty);
+
+                KitchenObject.SpawnKitchenObject(plateKitchenObjectSO, player);
+            }
+        }
+    }
+}
+```
+
+
 
 
 
