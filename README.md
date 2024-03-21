@@ -322,8 +322,64 @@ public class ContainerCounter : BaseCounter
         }
     }
 }
-
 ```
+
+### 3a. ContainerCounterVisual.cs
+
+#### Description
+This class represents the visual component of a container counter object. It listens to events from a `ContainerCounter` instance and triggers animations accordingly.
+
+#### Inherits from
+- `MonoBehaviour`
+
+#### Fields
+- `private const string OPEN_CLOSE`: Constant string representing the trigger name for the open-close animation.
+- `[SerializeField] ContainerCounter containerCounter`: Reference to the `ContainerCounter` instance associated with this visual component.
+- `private Animator animator`: Reference to the Animator component attached to the GameObject.
+
+#### Methods
+- `private void Awake()`: Unity lifecycle method called when the script instance is being loaded. Initializes the `animator` field by getting the Animator component attached to the GameObject.
+- `private void Start()`: Unity lifecycle method called before the first frame update. Subscribes to the `OnPlayerGrabObject` event of the associated `ContainerCounter` instance.
+- `private void ContainerCounter_OnPlayerGrabObject(object sender, EventArgs e)`: Event handler method triggered when a player grabs an object from the associated `ContainerCounter`. Sets the trigger for the open-close animation on the Animator component.
+
+#### Usage
+This class is used to manage the visual representation of a container counter object in the game environment. It listens to events triggered by interactions with the associated `ContainerCounter` instance and triggers animations accordingly.
+
+#### Notes
+- This class serves as a bridge between the logic of the `ContainerCounter` and its visual representation, allowing for synchronized animations based on gameplay events.
+- The `OPEN_CLOSE` constant string represents the name of the trigger parameter in the Animator controller used to control the open-close animation.
+
+#### Code
+```
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using UnityEngine;
+
+public class ContainerCounterVisual : MonoBehaviour
+{
+    private const string OPEN_CLOSE = "OpenClose";
+    [SerializeField] ContainerCounter containerCounter;
+    private Animator animator;
+
+    private void Awake()
+    {
+        animator = GetComponent<Animator>();
+    }
+
+    private void Start()
+    {
+        containerCounter.OnPlayerGrabObject += ContainerCounter_OnPlayerGrabObject;
+    }
+    private void ContainerCounter_OnPlayerGrabObject(object sender, EventArgs e)
+    {
+        animator.SetTrigger(OPEN_CLOSE);
+    }
+}
+```
+
+
 
 
 
