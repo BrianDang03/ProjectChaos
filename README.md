@@ -1537,3 +1537,72 @@ public class RecipeSO : ScriptableObject
     public string recipeName;
 }
 ```
+
+---
+## UI
+### [1. DeliveryManagerSingleUI.cs](README.md#1-scripts)
+
+#### Description
+This script manages the user interface (UI) for displaying details of a single recipe in the delivery manager. It displays the name of the recipe and icons representing the kitchen objects required for the recipe.
+
+#### Inherits from
+- `MonoBehaviour`
+
+#### Fields
+- `public TextMeshProUGUI recipeNameText`: Text component for displaying the name of the recipe.
+- `public Transform iconContainer`: Container for holding icon representations of kitchen objects.
+- `public Transform iconTemplate`: Template object for the icon representation of a kitchen object.
+
+#### Methods
+- `void Awake()`: Called when the script instance is being loaded.
+- `public void SetRecipeSO(RecipeSO recipeSO)`: Sets the recipe information to be displayed in the UI.
+
+#### Usage
+This script is attached to a GameObject in the scene representing the delivery manager UI. It is responsible for updating the UI with details of a single recipe when requested.
+
+#### Notes
+- The `iconTemplate` serves as a template for creating icon representations of kitchen objects. It is set as inactive in the hierarchy to prevent it from being displayed directly.
+- When `SetRecipeSO` is called with a `RecipeSO` object, the UI updates to display the name of the recipe and icons representing the kitchen objects required for the recipe.
+- It dynamically instantiates icon representations for each kitchen object in the recipe's `kitchenObjectSOList` and sets their sprites based on the associated `sprite` field in the `KitchenObjectSO`.
+
+#### Code
+```
+using System.Collections;
+using System.Collections.Generic;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class DeliveryManagerSingleUI : MonoBehaviour
+{
+    [SerializeField] private TextMeshProUGUI recipeNameText;
+    [SerializeField] private Transform iconContainer;
+    [SerializeField] private Transform iconTemplate;
+
+    private void Awake()
+    {
+        iconTemplate.gameObject.SetActive(false);
+    }
+
+    public void SetRecipeSO(RecipeSO recipeSO)
+    {
+        recipeNameText.text = recipeSO.recipeName;
+
+        foreach (Transform child in iconContainer)
+        {
+            if (child == iconTemplate) continue;
+            Destroy(child.gameObject);
+        }
+
+        foreach (KitchenObjectSO kitchenObjectSO in recipeSO.kitchenObjectSOList)
+        {
+            Transform iconTransform = Instantiate(iconTemplate, iconContainer);
+            iconTransform.gameObject.SetActive(true);
+            iconTransform.GetComponent<Image>().sprite = kitchenObjectSO.sprite;
+        }
+    }
+
+}
+```
+
+---
