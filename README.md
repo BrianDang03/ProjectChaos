@@ -19,7 +19,7 @@
      - [8. TrashCounter.cs](README.md#8-trashcountercs)
    - ScriptableObjects
      - [AudioClipRefsSO.cs](README.md#1-audiocliprefssocs)
-     - BurningRecipeSO.cs
+     - [BurningRecipeSO.cs])(README.md#2-burningrecipesocs)
      - CuttingRecipeSO.cs
      - FryingRecipeSO.cs
      - KitchekObjectSO.cs
@@ -1302,4 +1302,41 @@ public class AudioClipRefsSO : ScriptableObject
     public AudioClip[] warning;
 }
 ```
+### 2. [BuringRecipeSO.cs](READEME.md#1-scripts)
 
+#### Description
+This scriptable object represents a burning recipe. It defines the input kitchen object, output kitchen object, and the maximum burning timer allowed for the recipe to complete.
+
+#### Inherits from
+- `ScriptableObject`
+
+#### Fields
+- `public KitchenObjectSO input`: The input kitchen object required for the burning recipe.
+- `public KitchenObjectSO output`: The output kitchen object produced after the burning process.
+- `public float burningTimerMax`: The maximum duration allowed for the burning process to complete.
+
+#### Methods
+- None
+
+#### Usage
+This scriptable object is used to define specific burning recipes in the game environment. It provides a structured way to store and manage burning recipes, including their input objects, output objects, and timing constraints.
+
+#### Notes
+- Burning recipes typically involve subjecting certain kitchen objects to heat or fire until they reach a desired state or condition.
+- The `input` field specifies the kitchen object required for the burning recipe to start, while the `output` field defines the resulting kitchen object after the burning process is completed.
+- The `burningTimerMax` field determines the maximum duration allowed for the burning process to complete, ensuring that the gameplay experience remains balanced and consistent.
+
+#### Code
+```
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+[CreateAssetMenu()]
+public class BuringRecipeSO : ScriptableObject
+{
+    public KitchenObjectSO input;
+    public KitchenObjectSO output;
+    public float burningTimerMax;
+}
+```
