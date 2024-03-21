@@ -11,7 +11,7 @@
      - [CuttingCounter.cs](README.md#4-cuttingcountercs)
        - [CuttingCounterVisual.cs](README.md#4a-cuttingcountervisualcs)
      - [DeliveryCounter.cs](README.md#5-deliverycountercs)
-     - [PlateCounter.cs](README.md#6-platecountercs)
+     - [PlatesCounter.cs](README.md#6-platescountercs)
        - PlateCounterVisual.cs
      - StoveCounter.cs
        - StoveCounterVisual.cs 
