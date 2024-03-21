@@ -249,7 +249,7 @@ This class represents a specific type of counter object. It inherits functionali
         - Invokes the `OnPlayerGrabObject` event.
 
 #### Usage
-This class is used to define the behavior of a specific type of counter in the game environment. It handles interactions between players and kitchen objects placed on the counter, as well as spawning new kitchen objects when both the player and the counter are empty.
+This class is used to define the behavior of a container counter in the game environment. It handles interactions between players and kitchen objects placed on the counter, as well as spawning new kitchen objects when both the player and the counter are empty.
 
 #### Notes
 - This class extends functionality from the `BaseCounter` class, providing additional behavior specific to counters that act as containers in the game.
@@ -416,7 +416,7 @@ This class represents a specific type of counter object. It inherits functionali
 - `private CuttingRecipeSO GetCuttingRecipeSOWithInput(KitchenObjectSO inputKitchenObjectSO)`: Retrieves the cutting recipe that matches the input kitchen object from the array of cutting recipes.
 
 #### Usage
-This class is used to define the behavior of a specific type of counter in the game environment, allowing players to perform cutting actions on kitchen objects placed on the counter.
+This class is used to define the behavior of a cutting counter in the game environment, allowing players to perform cutting actions on kitchen objects placed on the counter.
 
 #### Notes
 - This class extends functionality from the `BaseCounter` class, providing additional behavior specific to cutting actions in the game.
@@ -616,6 +616,63 @@ public class CuttingCounterVisual : MonoBehaviour
 ```
 
 ---
+### DeliveryCounter.cs
+
+#### Description
+This class represents a delivery counter object. It inherits functionality from the `BaseCounter` class and implements behavior specific to delivering recipes.
+
+#### Inherits from
+- `BaseCounter`
+
+#### Fields
+- `public static DeliveryCounter Instance { get; private set; }`: Singleton instance of the `DeliveryCounter` class.
+
+#### Methods
+- `private void Awake()`: Unity lifecycle method called when the script instance is being loaded. Initializes the singleton instance of the `DeliveryCounter`.
+- `public override void Interact(Player player)`: Overrides the base class method to implement interaction behavior when a player interacts with the delivery counter.
+    - If the player is carrying a kitchen object:
+        - If the player is carrying a plate, it delivers the recipe associated with the plate using the `DeliveryManager`, and then destroys the plate.
+
+#### Usage
+This class is used to define the behavior of a delivery counter in the game environment, allowing players to deliver recipes by placing plates on the delivery counter.
+
+#### Notes
+- This class extends functionality from the `BaseCounter` class, providing behavior specific to recipe delivery in the game.
+- It interacts with the `DeliveryManager` to deliver recipes when plates are placed on the delivery counter.
+- The singleton pattern is used to ensure that only one instance of the `DeliveryCounter` exists in the game.
+
+#### Code
+```
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Rendering;
+
+public class DeliveryCounter : BaseCounter
+{
+    public static DeliveryCounter Instance { get; private set; }
+
+    private void Awake()
+    {
+        Instance = this;
+    }
+
+    public override void Interact(Player player)
+    {
+        if (player.HasKitchenObject())
+        {
+            if (player.GetKitchenObject().TryGetPlate(out PlateKitchenObject plateKitchenObject))
+            {
+                //Only Accpets Plates
+                DeliveryManager.Instance.DeliverRecipe(plateKitchenObject);
+                player.GetKitchenObject().DestorySelf();
+            }
+        }
+    }
+}
+
+```
+
 
 
 
