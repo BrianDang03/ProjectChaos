@@ -557,6 +557,67 @@ public class CuttingCounter : BaseCounter, IHasProgress
 }
 ```
 
+### 4a. CuttingCounterVisual.cs
+
+#### Description
+This class represents the visual component of a cutting counter object. It listens to the `OnCut` event from a `CuttingCounter` instance and triggers animations accordingly.
+
+#### Inherits from
+- `MonoBehaviour`
+
+#### Fields
+- `private const string CUT`: Constant string representing the trigger name for the cutting animation.
+- `[SerializeField] CuttingCounter cuttingCounter`: Reference to the `CuttingCounter` instance associated with this visual component.
+- `private Animator animator`: Reference to the Animator component attached to the GameObject.
+
+#### Methods
+- `private void Awake()`: Unity lifecycle method called when the script instance is being loaded. Initializes the `animator` field by getting the Animator component attached to the GameObject.
+- `private void Start()`: Unity lifecycle method called before the first frame update. Subscribes to the `OnCut` event of the associated `CuttingCounter` instance.
+- `private void CuttingCounter_OnCut(object sender, EventArgs e)`: Event handler method triggered when a cutting action occurs on the associated `CuttingCounter`. Sets the trigger for the cutting animation on the Animator component.
+
+#### Usage
+This class is used to manage the visual representation of a cutting counter object in the game environment. It listens to events triggered by cutting actions on the associated `CuttingCounter` instance and triggers animations accordingly.
+
+#### Notes
+- This class serves as a bridge between the logic of the `CuttingCounter` and its visual representation, allowing for synchronized animations based on gameplay events.
+- The `CUT` constant string represents the name of the trigger parameter in the Animator controller used to control the cutting animation.
+
+#### Code
+```
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using UnityEngine;
+
+public class CuttingCounterVisual : MonoBehaviour
+{
+    private const string CUT = "Cut";
+    [SerializeField] CuttingCounter cuttingCounter;
+    private Animator animator;
+
+
+    private void Awake()
+    {
+        animator = GetComponent<Animator>();
+    }
+
+    private void Start()
+    {
+        cuttingCounter.OnCut += CuttingCounter_OnCut;
+    }
+
+    private void CuttingCounter_OnCut(object sender, System.EventArgs e)
+    {
+        animator.SetTrigger(CUT);
+    }
+}
+
+```
+
+---
+
+
 
 
 
