@@ -1760,3 +1760,95 @@ public class GameOverUI : MonoBehaviour
 ```
 
 ---
+### [4. GamePauseUI.cs](README.md#1-scripts)
+
+#### Description
+This script manages the user interface (UI) for pausing the game. It provides buttons for resuming the game, returning to the main menu, and accessing options.
+
+#### Inherits from
+- `MonoBehaviour`
+
+#### Fields
+- `public Button resumeButton`: Button for resuming the game.
+- `public Button mainMenuButton`: Button for returning to the main menu.
+- `public Button optionsButton`: Button for accessing options.
+
+#### Methods
+- `void Awake()`: Called when the script instance is being loaded.
+- `void Start()`: Called before the first frame update.
+- `void KitchenGameManager_OnGamePaused(object sender, EventArgs e)`: Event handler for the `OnGamePaused` event triggered by the `KitchenGameManager`.
+- `void KitchenGameManager_OnGameUnpaused(object sender, EventArgs e)`: Event handler for the `OnGameUnpaused` event triggered by the `KitchenGameManager`.
+- `void Show()`: Displays the pause menu UI.
+- `void Hide()`: Hides the pause menu UI.
+
+#### Usage
+This script is attached to a GameObject in the scene representing the pause menu UI. It listens for events triggered by the `KitchenGameManager` to show or hide the pause menu UI when the game is paused or unpaused, respectively.
+
+#### Notes
+- The `Awake` method sets up the button click listeners for the resume, main menu, and options buttons. Clicking these buttons triggers the corresponding actions.
+- The `Start` method subscribes to the `OnGamePaused` and `OnGameUnpaused` events triggered by the `KitchenGameManager`. When the game is paused, the pause menu UI is shown, and when the game is unpaused, the UI is hidden.
+- The `Show` and `Hide` methods are used to toggle the visibility of the pause menu UI.
+
+#### Code
+```
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class GamePauseUI : MonoBehaviour
+{
+
+    [SerializeField] private Button resumeButton;
+    [SerializeField] private Button mainMenuButton;
+    [SerializeField] private Button optionsButton;
+
+    private void Awake()
+    {
+        resumeButton.onClick.AddListener(() =>
+        {
+            KitchenGameManager.Instance.TogglePauseGame();
+        });
+
+        mainMenuButton.onClick.AddListener(() =>
+        {
+            Loader.Load(Loader.Scene.MainMenu);
+        });
+
+        optionsButton.onClick.AddListener(() =>
+        {
+            OptionsUI.Instance.Show();
+        });
+    }
+
+    private void Start()
+    {
+        KitchenGameManager.Instance.OnGamePaused += KitchenGameManager_OnGamePaused;
+        KitchenGameManager.Instance.OnGameUnpaused += KitchenGameManager_OnGameUnpaused;
+
+        Hide();
+    }
+
+    private void KitchenGameManager_OnGamePaused(object sender, EventArgs e)
+    {
+        Show();
+    }
+
+    private void KitchenGameManager_OnGameUnpaused(object sender, EventArgs e)
+    {
+        Hide();
+    }
+
+    private void Show()
+    {
+        gameObject.SetActive(true);
+    }
+
+    private void Hide()
+    {
+        gameObject.SetActive(false);
+    }
+}
+
+```
