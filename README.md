@@ -2095,42 +2095,54 @@ public class MainMenuUI : MonoBehaviour
 ### [8. OptionsUI.cs](README.md#1-scripts)
 
 #### Description
-This script manages the options user interface (UI) functionality. It allows the player to adjust sound effects and music volume settings. Additionally, it provides a button to close the options menu.
-
-#### Inherits from
-- `MonoBehaviour`
-
-#### Properties
-- `public static OptionsUI Instance`: Singleton instance of the OptionsUI class.
+This script manages the options menu UI, allowing players to adjust game settings such as sound effects volume, music volume, and key bindings. It provides functionality to rebind key bindings interactively and updates the UI to reflect changes in settings and key bindings.
 
 #### Fields
-- `public Button soundEffectsButton`: Button component representing the sound effects volume adjustment button.
-- `public Button musicButton`: Button component representing the music volume adjustment button.
-- `public Button closeButton`: Button component representing the close button for the options menu.
-- `public TextMeshProUGUI soundEffectsText`: TextMeshProUGUI component displaying the current sound effects volume.
-- `public TextMeshProUGUI musicText`: TextMeshProUGUI component displaying the current music volume.
+- `public static OptionsUI Instance { get; private set; }`: Static reference to the OptionsUI instance.
+- `[SerializeField] private Button soundEffectsButton`: Reference to the button for adjusting sound effects volume.
+- `[SerializeField] private Button musicButton`: Reference to the button for adjusting music volume.
+- `[SerializeField] private Button closeButton`: Reference to the button for closing the options menu.
+- `[SerializeField] private TextMeshProUGUI soundEffectsText`: Reference to the TextMeshProUGUI for displaying sound effects volume.
+- `[SerializeField] private TextMeshProUGUI musicText`: Reference to the TextMeshProUGUI for displaying music volume.
+- `[SerializeField] private Button moveUpButton`: Reference to the button for rebinding the move up key.
+- `[SerializeField] private Button moveDownButton`: Reference to the button for rebinding the move down key.
+- `[SerializeField] private Button moveLeftButton`: Reference to the button for rebinding the move left key.
+- `[SerializeField] private Button moveRightButton`: Reference to the button for rebinding the move right key.
+- `[SerializeField] private Button interactButton`: Reference to the button for rebinding the interact key.
+- `[SerializeField] private Button interactAlternateButton`: Reference to the button for rebinding the alternate interact key.
+- `[SerializeField] private TextMeshProUGUI moveUpText`: Reference to the TextMeshProUGUI for displaying the move up key binding.
+- `[SerializeField] private TextMeshProUGUI moveDownText`: Reference to the TextMeshProUGUI for displaying the move down key binding.
+- `[SerializeField] private TextMeshProUGUI moveLeftText`: Reference to the TextMeshProUGUI for displaying the move left key binding.
+- `[SerializeField] private TextMeshProUGUI moveRightText`: Reference to the TextMeshProUGUI for displaying the move right key binding.
+- `[SerializeField] private TextMeshProUGUI interactText`: Reference to the TextMeshProUGUI for displaying the interact key binding.
+- `[SerializeField] private TextMeshProUGUI interactAlternateText`: Reference to the TextMeshProUGUI for displaying the alternate interact key binding.
+- `[SerializeField] private Transform pressToRebindKeyTransform`: Reference to the transform for showing the press to rebind key UI.
 
 #### Methods
-- `void Awake()`: Called when the script instance is being loaded. Initializes the singleton instance, subscribes to button click events, and updates the visual representation of sound effects and music volume settings.
-- `void Start()`: Called before the first frame update. Subscribes to the game unpaused event and initializes the visual representation of volume settings. Hides the options menu.
-- `void KitchenGameManager_OnGameUnpaused(object sender, EventArgs e)`: Event handler for the game unpaused event. Hides the options menu.
-- `void UpdateVisual()`: Updates the visual representation of sound effects and music volume settings.
-- `public void Show()`: Displays the options menu.
-- `private void Hide()`: Hides the options menu.
+- `private void Awake()`: Unity lifecycle method called when the script instance is being loaded. Initializes the static reference to the OptionsUI instance.
+- `private void Start()`: Unity lifecycle method called before the first frame update. Subscribes to game unpaused event and updates the visual elements of the options menu.
+- `private void KitchenGameManager_OnGameUnpaused(object sender, EventArgs e)`: Event handler method called when the game is unpaused. Hides the options menu.
+- `private void UpdateVisual()`: Updates the visual elements of the options menu to reflect changes in settings and key bindings.
+- `public void Show()`: Shows the options menu by setting its GameObject active.
+- `private void Hide()`: Hides the options menu by setting its GameObject inactive.
+- `private void ShowPressToRebindKey()`: Shows the press to rebind key UI by setting its GameObject active.
+- `private void HidePressToRebindKey()`: Hides the press to rebind key UI by setting its GameObject inactive.
+- `private void RebindBinding(GameInput.Binding binding)`: Initiates the process of rebinding a key binding. Shows the press to rebind key UI and calls the `RebindBinding` method of the `GameInput` class to rebind the specified binding.
 
 #### Usage
-This script is attached to a GameObject representing the options menu in the game. It requires Button and TextMeshProUGUI components for sound effects, music, and close buttons, as well as text displays for volume settings. The `Awake` method initializes the singleton instance and subscribes to button click events for adjusting volume settings. The `Start` method initializes the visual representation of volume settings and subscribes to the game unpaused event. The `Show` method displays the options menu, and the `Hide` method hides it.
+This script is attached to a GameObject representing the options menu in the game scene. It provides players with options to adjust sound effects volume, music volume, and key bindings. Players can interactively rebind key bindings by clicking on the respective buttons and pressing the desired key. The options menu can be opened and closed during gameplay.
 
 #### Notes
-- The `Awake` method sets up the singleton pattern to ensure that only one instance of the OptionsUI class exists throughout the game.
-- Button click event listeners are used to adjust sound effects and music volume settings. These methods also update the visual representation of volume settings.
-- The `KitchenGameManager_OnGameUnpaused` method hides the options menu when the game is unpaused.
+- The OptionsUI enhances the player experience by providing customizable settings and key bindings.
+- It includes functionality for interactive key binding reassignment, improving accessibility and customization options for players.
+
 
 #### Code
 ```
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -2145,6 +2157,26 @@ public class OptionsUI : MonoBehaviour
 
     [SerializeField] private TextMeshProUGUI soundEffectsText;
     [SerializeField] private TextMeshProUGUI musicText;
+
+    [SerializeField] private Button moveUpButton;
+    [SerializeField] private Button moveDownButton;
+    [SerializeField] private Button moveLeftButton;
+    [SerializeField] private Button moveRightButton;
+    [SerializeField] private Button interactButton;
+    [SerializeField] private Button interactAlternateButton;
+    [SerializeField] private TextMeshProUGUI moveUpText;
+    [SerializeField] private TextMeshProUGUI moveDownText;
+    [SerializeField] private TextMeshProUGUI moveLeftText;
+    [SerializeField] private TextMeshProUGUI moveRightText;
+    [SerializeField] private TextMeshProUGUI interactText;
+    [SerializeField] private TextMeshProUGUI interactAlternateText;
+    [SerializeField] private Transform pressToRebindKeyTransform;
+
+    //[SerializeField] private Button gamepadInteractButton;
+    //[SerializeField] private Button gamepadInteractAlternateButton;
+
+    //[SerializeField] private TextMeshProUGUI gamepadinteractText;
+    //[SerializeField] private TextMeshProUGUI gamepadInteractAlternateText;
 
     private void Awake()
     {
@@ -2163,7 +2195,43 @@ public class OptionsUI : MonoBehaviour
         closeButton.onClick.AddListener(() =>
         {
             Hide();
+            GamePauseUI.Instance.Show();
         });
+
+        moveUpButton.onClick.AddListener(() => 
+        {
+            RebindBinding(GameInput.Binding.Move_Up);
+        });
+        moveDownButton.onClick.AddListener(() => 
+        {
+            RebindBinding(GameInput.Binding.Move_Down);
+        });
+        moveLeftButton.onClick.AddListener(() => 
+        {
+            RebindBinding(GameInput.Binding.Move_Left);
+        });
+        moveRightButton.onClick.AddListener(() => 
+        {
+            RebindBinding(GameInput.Binding.Move_Right);
+        });
+        interactButton.onClick.AddListener(() => 
+        {
+            RebindBinding(GameInput.Binding.Interact);
+        });
+        interactAlternateButton.onClick.AddListener(() => 
+        {
+            RebindBinding(GameInput.Binding.InteractAlternate);
+        });
+        /*
+        gamepadInteractButton.onClick.AddListener(() => 
+        {
+            RebindBinding(GameInput.Binding.Gamepad_Interact);
+        });
+        gamepadInteractAlternateButton.onClick.AddListener(() => 
+        {
+            RebindBinding(GameInput.Binding.Gamepad_InteractAlternate);
+        });
+        */
     }
 
     private void Start()
@@ -2171,6 +2239,8 @@ public class OptionsUI : MonoBehaviour
         KitchenGameManager.Instance.OnGameUnpaused += KitchenGameManager_OnGameUnpaused;
 
         UpdateVisual();
+
+        HidePressToRebindKey();
 
         Hide();
     }
@@ -2185,16 +2255,47 @@ public class OptionsUI : MonoBehaviour
         soundEffectsText.text = "Sound Effects: " + Math.Round(SoundManager.Instance.GetVolume() * 10f);
         musicText.text = "Music: " + Math.Round(MusicManager.Instance.GetVolume() * 10f);
 
+        moveUpText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Move_Up);
+        moveDownText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Move_Down);
+        moveLeftText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Move_Left);
+        moveRightText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Move_Right);
+        interactText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Interact);
+        interactAlternateText.text = GameInput.Instance.GetBindingText(GameInput.Binding.InteractAlternate);
+        //gamepadInteractText = GameInput.Instance.GetBindingText(GameInput.Binding.Gamepad_Interact);
+        //gamepadInteractAlternateText = GameInput.Instance.GetBindingText(GameInput.Binding.Gamepad_InteractAlternate);
     }
 
     public void Show()
     {
         gameObject.SetActive(true);
+
+        //Controller
+        //soundEffectsButton.Select();
     }
 
     private void Hide()
     {
         gameObject.SetActive(false);
+    }
+        
+    private void ShowPressToRebindKey()
+    {
+        pressToRebindKeyTransform.gameObject.SetActive(true);
+    }
+
+    private void HidePressToRebindKey()
+    {
+        pressToRebindKeyTransform.gameObject.SetActive(false);
+    }
+
+    private void RebindBinding(GameInput.Binding binding)
+    {
+        ShowPressToRebindKey();
+        GameInput.Instance.RebindBinding(binding, () => 
+        {
+            HidePressToRebindKey();
+            UpdateVisual();
+        });
     }
 }
 ```
