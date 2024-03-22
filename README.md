@@ -1838,11 +1838,14 @@ This script is attached to a GameObject in the scene representing the pause menu
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class GamePauseUI : MonoBehaviour
 {
+
+    public static GamePauseUI Instance { get; private set; }
 
     [SerializeField] private Button resumeButton;
     [SerializeField] private Button mainMenuButton;
@@ -1850,6 +1853,8 @@ public class GamePauseUI : MonoBehaviour
 
     private void Awake()
     {
+        Instance = this;
+
         resumeButton.onClick.AddListener(() =>
         {
             KitchenGameManager.Instance.TogglePauseGame();
@@ -1862,6 +1867,7 @@ public class GamePauseUI : MonoBehaviour
 
         optionsButton.onClick.AddListener(() =>
         {
+            Hide();
             OptionsUI.Instance.Show();
         });
     }
@@ -1884,9 +1890,12 @@ public class GamePauseUI : MonoBehaviour
         Hide();
     }
 
-    private void Show()
+    public void Show()
     {
         gameObject.SetActive(true);
+
+        //Controller
+        //resumeButton.Select();
     }
 
     private void Hide()
@@ -1894,7 +1903,6 @@ public class GamePauseUI : MonoBehaviour
         gameObject.SetActive(false);
     }
 }
-
 ```
 
 ---
