@@ -28,7 +28,13 @@
       - [1. KitchenObject.cs](README.md#1-kitchenobjectcs)
    - LoadScreen
      - [1. Loader.cs](README.md#1-loadercs)
-     - [2. LoaderCallback.cs](README.md#1-loadercallbackcs) 
+     - [2. LoaderCallback.cs](README.md#1-loadercallbackcs)
+   - Managers
+     - [1. DeliveryManager.cs](README.md#1-deliverymanagercs)
+     - [2. KitchenGameManager.cs](README.md#2-kitchengamemanagercs)
+     - [3. MusicManager.cs](README.md#3-musicmanagercs)
+     - [4. ResetStaticDataManager.cs](README.md#4-resetstaticdatamanagercs)
+     - [5. SoundManager.cs](README.md#5-soundmanagercs)
    - ScriptableObjects
      - [1. AudioClipRefsSO.cs](README.md#1-audiocliprefssocs)
      - [2. BurningRecipeSO.cs](README.md#2-burningrecipesocs)
@@ -1831,6 +1837,317 @@ public class LoaderCallback : MonoBehaviour
     }
 }
 ```
+
+---
+## Managers
+
+### [1. DeliveryManager.cs](README.md#1-scripts)
+
+#### Description
+The `DeliveryManager` class manages the delivery of recipes in the game. It spawns recipes at regular intervals and handles the delivery of recipes to plates. It tracks successful and failed recipe deliveries.
+
+#### Fields
+- `public static DeliveryManager Instance`: Singleton instance of the `DeliveryManager`.
+- `[SerializeField] private RecipeListSO recipeListSO`: ScriptableObject containing a list of recipes.
+- `[SerializeField] private float spawnRecipeTimerMax`: Maximum time interval between spawning recipes.
+- `[SerializeField] int waitingRecipeMax`: Maximum number of waiting recipes allowed.
+
+#### Events
+- `public event EventHandler OnRecipeSpawned`: Event invoked when a new recipe is spawned.
+- `public event EventHandler OnRecipeCompleted`: Event invoked when a recipe is successfully completed.
+- `public event EventHandler OnRecipeSuccess`: Event invoked when a recipe is successfully delivered.
+- `public event EventHandler OnRecipeFailed`: Event invoked when a recipe delivery fails.
+
+#### Methods
+- `private void Update()`: Updates the timer for spawning recipes and spawns a new recipe if conditions are met.
+- `public void DeliverRecipe(PlateKitchenObject plateKitchenObject)`: Checks if the delivered plate matches any waiting recipe. Invokes events accordingly.
+- `public List<RecipeSO> GetWaitingRecipeSOList()`: Returns the list of waiting recipes.
+- `public int GetSuccessfulRecipesAmount()`: Returns the number of successful recipe deliveries.
+
+#### Usage
+This class is responsible for managing the delivery of recipes in the game. It spawns recipes at regular intervals and handles the delivery process. Other scripts can subscribe to its events to react to recipe spawning, successful completion, or failure.
+
+#### Notes
+- The `RecipeListSO` contains a list of recipes available for delivery.
+- The `spawnRecipeTimerMax` determines the interval between recipe spawns.
+- The `waitingRecipeMax` limits the number of waiting recipes at any given time.
+
+#### Code
+```
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using Unity.VisualScripting;
+using UnityEngine;
+
+public class DeliveryManager : MonoBehaviour
+{
+    public event EventHandler OnRecipeSpawned;
+    public event EventHandler OnRecipeCompleted;
+    public event EventHandler OnRecipeSuccess;
+    public event EventHandler OnRecipeFailed;
+
+
+    public static DeliveryManager Instance { get; private set; }
+
+    [SerializeField] private RecipeListSO recipeListSO;
+    [SerializeField] private float spawnRecipeTimerMax = 8f;
+    [SerializeField] int waitingRecipeMax = 4;
+
+    private float spawnRecipeTimer;
+    private List<RecipeSO> waitingRecipeSOList;
+    private int successfulRecipesAmount = 0;
+
+    private void Awake()
+    {
+        Instance = this;
+        waitingRecipeSOList = new List<RecipeSO>();
+    }
+
+    private void Update()
+    {
+        spawnRecipeTimer -= Time.deltaTime;
+        if (spawnRecipeTimer <= 0f)
+        {
+            spawnRecipeTimer = spawnRecipeTimerMax;
+
+            if (KitchenGameManager.Instance.IsGamePlaying() && waitingRecipeSOList.Count < waitingRecipeMax)
+            {
+                RecipeSO waitingRecipeSO = recipeListSO.recipeSOList[UnityEngine.Random.Range(0, recipeListSO.recipeSOList.Count)];
+                waitingRecipeSOList.Add(waitingRecipeSO);
+                OnRecipeSpawned?.Invoke(this, EventArgs.Empty);
+            }
+        }
+    }
+
+    public void DeliverRecipe(PlateKitchenObject plateKitchenObject)
+    {
+        for (int i = 0; i < waitingRecipeSOList.Count; i++)
+        {
+            RecipeSO waitingRecipeSO = waitingRecipeSOList[i];
+
+            if (waitingRecipeSO.kitchenObjectSOList.Count == plateKitchenObject.GetKitchenObjectSOList().Count)
+            {
+                bool plateContentsMatchesRecipe = true;
+                //Has same number of ingredents
+                foreach (KitchenObjectSO recipeKitchenObjectSO in waitingRecipeSO.kitchenObjectSOList)
+                {
+                    bool ingredientFound = false;
+                    //Cycling through all the ingredients
+                    foreach (KitchenObjectSO plateKitchenObjectSO in plateKitchenObject.GetKitchenObjectSOList())
+                    {
+                        if (plateKitchenObjectSO == recipeKitchenObjectSO)
+                        {
+                            //Ingredients Match
+                            ingredientFound = true;
+                            break;
+                        }
+                    }
+
+                    if (!ingredientFound)
+                    {
+                        //This Recipe ingredient not found on plate
+                        plateContentsMatchesRecipe = false;
+                    }
+                }
+
+                if (plateContentsMatchesRecipe)
+                {
+                    //Player Delivered the correct recipe
+                    successfulRecipesAmount++;
+                    waitingRecipeSOList.RemoveAt(i);
+                    OnRecipeCompleted?.Invoke(this, EventArgs.Empty);
+                    OnRecipeSuccess?.Invoke(this, EventArgs.Empty);
+                    return;
+                }
+            }
+        }
+
+        //NoMatches Found
+        OnRecipeFailed.Invoke(this, EventArgs.Empty);
+    }
+
+    public List<RecipeSO> GetWaitingRecipeSOList()
+    {
+        return waitingRecipeSOList;
+    }
+
+    public int GetSuccessfulRecipesAmount()
+    {
+        return successfulRecipesAmount;
+    }
+}
+```
+
+---
+### [2. KitchenGameManager.cs](README.md#1-scripts)
+
+#### Description
+The `KitchenGameManager` class manages the overall state of the kitchen game. It handles the game's lifecycle, including waiting for the game to start, starting a countdown, playing the game, and ending it when conditions are met. It also manages the game's pause state.
+
+#### Fields
+- `public static KitchenGameManager Instance`: Singleton instance of the `KitchenGameManager`.
+- `public event EventHandler OnStateChanged`: Event invoked when the game state changes.
+- `public event EventHandler OnGamePaused`: Event invoked when the game is paused.
+- `public event EventHandler OnGameUnpaused`: Event invoked when the game is unpaused.
+- `[SerializeField] private float countdownToStartTImer = 3f`: Duration of the countdown before the game starts.
+- `[SerializeField] private float gamePlayingTimerMax = 10`: Maximum duration of the game playing phase.
+- `private float gamePlayingTimer`: Current remaining time in the game playing phase.
+- `private bool isGamePaused = false`: Flag indicating whether the game is currently paused.
+- `private enum State`: Enumeration representing different states of the game.
+
+#### Methods
+- `private void Awake()`: Initializes the singleton instance and sets the initial game state.
+- `private void Start()`: Subscribes to input events for pausing and starting the game.
+- `private void GameInput_OnPauseAction(object sender, EventArgs e)`: Handles the pause action input event by toggling the game's pause state.
+- `private void GameInput_OnInteractAction(object sender, EventArgs e)`: Handles the interact action input event by transitioning the game state from waiting to start to countdown to start.
+- `private void Update()`: Updates the game state based on the current state.
+- `public bool IsGamePlaying()`: Returns true if the game is currently in the playing state.
+- `public bool IsCountdownToStartActive()`: Returns true if the game is currently in the countdown to start state.
+- `public float GetCountdownToStatTimer()`: Returns the remaining time in the countdown to start.
+- `public bool IsGameOver()`: Returns true if the game is over.
+- `public float GetGamePlayingTimerNormalized()`: Returns the normalized value of the remaining time in the game playing phase.
+- `public void TogglePauseGame()`: Toggles the pause state of the game and invokes corresponding events.
+
+#### Usage
+This class manages the overall state of the kitchen game. It controls the game lifecycle, including waiting for the game to start, starting a countdown, playing the game, and ending it when conditions are met. It also handles pausing and unpausing the game.
+
+#### Notes
+- Ensure that this script is attached to a GameObject that persists throughout the game session, such as a GameManager object.
+- The countdownToStartTimer and gamePlayingTimerMax values can be adjusted in the Unity Editor to change the duration of the countdown and the maximum duration of the game playing phase, respectively.
+
+#### Code
+```
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class KitchenGameManager : MonoBehaviour
+{
+    public static KitchenGameManager Instance { get; private set; }
+
+    public event EventHandler OnStateChanged;
+    public event EventHandler OnGamePaused;
+    public event EventHandler OnGameUnpaused;
+
+    private enum State
+    {
+        WaitingToStart,
+        CountdownToStart,
+        GamePlaying,
+        GameOver,
+    }
+
+    [SerializeField] private float countdownToStartTImer = 3f;
+    [SerializeField] private float gamePlayingTimerMax = 10;
+
+    private float gamePlayingTimer;
+    private bool isGamePaused = false;
+
+
+    private State state;
+
+    private void Awake()
+    {
+        Instance = this;
+        state = State.WaitingToStart;
+        gamePlayingTimer = gamePlayingTimerMax;
+    }
+
+    private void Start()
+    {
+        GameInput.Instance.OnPauseAction += GameInput_OnPauseAction;
+        GameInput.Instance.OnInteractAction += GameInput_OnInteractAction;
+    }
+
+    private void GameInput_OnPauseAction(object sender, EventArgs e)
+    {
+        TogglePauseGame();
+    }
+
+    private void GameInput_OnInteractAction(object sender, EventArgs e)
+    {
+        if (state == State.WaitingToStart)
+        {
+            state = State.CountdownToStart;
+            OnStateChanged?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    private void Update()
+    {
+        switch (state)
+        {
+            case State.WaitingToStart:
+                break;
+            case State.CountdownToStart:
+                countdownToStartTImer -= Time.deltaTime;
+                if (countdownToStartTImer < 0f)
+                {
+                    gamePlayingTimer = gamePlayingTimerMax;
+                    state = State.GamePlaying;
+                    OnStateChanged?.Invoke(this, EventArgs.Empty);
+                }
+                break;
+            case State.GamePlaying:
+                gamePlayingTimer -= Time.deltaTime;
+                if (gamePlayingTimer < 0f)
+                {
+                    state = State.GameOver;
+                    OnStateChanged?.Invoke(this, EventArgs.Empty);
+                }
+                break;
+            case State.GameOver:
+                break;
+        }
+    }
+
+    public bool IsGamePlaying()
+    {
+        return state == State.GamePlaying;
+    }
+
+    public bool IsCountdownToStartActive()
+    {
+        return state == State.CountdownToStart;
+    }
+
+    public float GetCountdownToStatTimer()
+    {
+        return countdownToStartTImer;
+    }
+
+    public bool IsGameOver()
+    {
+        return state == State.GameOver;
+    }
+
+    public float GetGamePlayingTimerNormalized()
+    {
+        return gamePlayingTimer / gamePlayingTimerMax;
+    }
+
+    public void TogglePauseGame()
+    {
+        isGamePaused = !isGamePaused;
+
+        if (isGamePaused)
+        {
+            Time.timeScale = 0f;
+            OnGamePaused?.Invoke(this, EventArgs.Empty);
+        }
+        else
+        {
+            Time.timeScale = 1f;
+            OnGameUnpaused?.Invoke(this, EventArgs.Empty);
+        }
+    }
+}
+```
+
+---
+
 
 ---
 ## ScriptableObjects
