@@ -2689,6 +2689,135 @@ public class PlayerAnimator : MonoBehaviour
 ```
 
 ---
+### [3. PlayerSounds.cs](README.md#1-scripts)
+
+#### Description
+The `PlayerSounds` class manages player-related sounds, such as footsteps, based on the player's movement state.
+
+#### Fields
+- `[SerializeField] private float footstepTimerMax = .1f`: Maximum duration between footstep sounds.
+- `[SerializeField] private float footstepVolume = 1f`: Volume of the footstep sounds.
+- `private Player player`: Reference to the `Player` component to access the player's movement state.
+- `private float footstepTimer`: Timer to control the interval between footstep sounds.
+
+#### Methods
+- `private void Awake()`: Initializes the `Player` component reference.
+- `private void Update()`: Updates the footstep sounds based on the player's movement state.
+
+#### Usage
+Attach this script to the GameObject representing the player character in the scene. Adjust the `footstepTimerMax` and `footstepVolume` parameters in the inspector to control the frequency and volume of footstep sounds.
+
+#### Notes
+- This script assumes that there is a `Player` component attached to the same GameObject.
+- Ensure that the `SoundManager` singleton instance is properly set up to handle footstep sounds.
+
+#### Code
+```
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class PlayerSounds : MonoBehaviour
+{
+    private Player player;
+    private float footstepTimer;
+    [SerializeField] private float footstepTimerMax = .1f;
+    [SerializeField] private float footstepVolume = 1f;
+
+    private void Awake()
+    {
+        player = GetComponent<Player>();
+    }
+
+    private void Update()
+    {
+        footstepTimer -= Time.deltaTime;
+        if (footstepTimer < 0f)
+        {
+            footstepTimer = footstepTimerMax;
+
+            if (player.IsWalking)
+            {
+                SoundManager.Instance.PlayFooststepsSound(player.transform.position, footstepVolume);
+            }
+        }
+    }
+
+
+}
+```
+
+---
+### [4. SelectedCounterVisual.cs](README.md#1-scripts)
+
+#### Description
+The `SelectedCounterVisual` class controls the visibility of visual elements associated with a specific base counter when it is selected by the player.
+
+#### Fields
+- `[SerializeField] private BaseCounter baseCounter`: Reference to the base counter associated with this visual component.
+- `[SerializeField] private GameObject[] visualGameObjectArray`: Array of visual game objects to control visibility.
+
+#### Methods
+- `private void Start()`: Subscribes to the `OnSelectedCounterChanged` event of the `Player` instance.
+- `private void Player_OnSelectedCounterChanged(object sender, Player.OnSelectedCounterChangedEventArgs e)`: Event handler method invoked when the selected counter changes. Shows or hides the visual elements based on whether the selected counter matches the associated base counter.
+- `private void Show()`: Sets the `active` property of each visual game object in the array to true, making them visible.
+- `private void Hide()`: Sets the `active` property of each visual game object in the array to false, hiding them.
+
+#### Usage
+Attach this script to the GameObject containing the visual elements associated with a specific base counter. Assign the corresponding base counter and visual game objects to the `baseCounter` and `visualGameObjectArray` fields in the inspector.
+
+#### Notes
+- This script assumes that there is a `Player` singleton instance in the scene.
+- Visual game objects should be properly configured in the scene and linked to this script.
+
+#### Code 
+```
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class SelectedCounterVisual : MonoBehaviour
+{
+
+    [SerializeField] private BaseCounter baseCounter;
+    [SerializeField] private GameObject[] visualGameObjectArray;
+
+    private void Start()
+    {
+        Player.Instance.OnSelectedCounterChanged += Player_OnSelectedCounterChanged;
+    }
+
+    private void Player_OnSelectedCounterChanged(object sender, Player.OnSelectedCounterChangedEventArgs e)
+    {
+        if (e.selectedCounter == baseCounter)
+        {
+            Show();
+        }
+        else
+        {
+            Hide();
+        }
+    }
+
+    private void Show()
+    {
+        foreach (GameObject visualGameObject in visualGameObjectArray)
+        {
+            visualGameObject.SetActive(true);
+        }
+    }
+
+    private void Hide()
+    {
+        foreach (GameObject visualGameObject in visualGameObjectArray)
+        {
+            visualGameObject.SetActive(false);
+        }
+    }
+}
+```
+
+---
 ## ScriptableObjects
 ### [1. AudioClipRefsSO.cs](README.md#1-scripts)
 
