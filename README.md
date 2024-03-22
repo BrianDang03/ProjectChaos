@@ -2642,7 +2642,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent
 ```
 
 ---
-### [2. PlayerAnimator.cs](README.md#2-playeranimator)
+### [2. PlayerAnimator.cs](README.md#1-scripts)
 
 #### Description
 The `PlayerAnimator` class controls the animation of the player character based on the player's movement state.
