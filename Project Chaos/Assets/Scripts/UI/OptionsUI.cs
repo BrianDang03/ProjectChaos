@@ -33,6 +33,7 @@ public class OptionsUI : MonoBehaviour
         closeButton.onClick.AddListener(() =>
         {
             Hide();
+            GamePauseUI.Instance.Show();
         });
     }
 
