@@ -1144,26 +1144,29 @@ public class StoveCounterVisual : MonoBehaviour
 ### [7b. StoveCounterSound.cs](README.md#1-scripts)
 
 #### Description
-This class represents the sound component of a stove counter object. It listens to the `OnStateChanged` event from a `StoveCounter` instance and plays or pauses the associated audio source based on the state of the stove.
-
-#### Inherits from
-- `MonoBehaviour`
+This class manages the sound effects for a stove counter object. It plays audio feedback based on the state and progress of the stove counter, such as when frying starts or when the cooking progress reaches a critical level.
 
 #### Fields
-- `[SerializeField] private StoveCounter stoveCounter`: Reference to the `StoveCounter` instance associated with this sound component.
-- `private AudioSource audioSource`: Reference to the AudioSource component attached to this GameObject.
+- `[SerializeField] private StoveCounter stoveCounter`: Reference to the stove counter script.
+- `private AudioSource audioSource`: Reference to the audio source component for playing sound effects.
+- `private float warningSoundTimer`: Timer for triggering warning sounds.
+- `private bool playWarningSound`: Flag indicating whether to play warning sounds based on the cooking progress.
 
 #### Methods
 - `private void Awake()`: Unity lifecycle method called when the script instance is being loaded. Initializes the audio source component.
-- `private void Start()`: Unity lifecycle method called before the first frame update. Subscribes to the `OnStateChanged` event of the associated `StoveCounter` instance.
-- `void StoveCounter_OnStateChanged(object sender, StoveCounter.OnStateChangedEventArgs e)`: Event handler method triggered when the state of the stove counter changes. Plays or pauses the audio source based on the new state.
+- `private void Start()`: Unity lifecycle method called before the first frame update. Subscribes to events triggered by the stove counter.
+- `private void StoveCounter_OnStateChanged(object sender, StoveCounter.OnStateChangedEventArgs e)`: Event handler method called when the state of the stove counter changes. Plays or pauses sound effects based on the stove counter's state.
+- `private void StoveCounter_OnProgressChanged(object sender, IHasProgress.OnProgressChangedEventArgs e)`: Event handler method called when the progress of the stove counter changes. Sets the flag to play warning sounds when the cooking progress reaches a critical level.
+- `private void Update()`: Unity lifecycle method called once per frame. Updates the warning sound timer and plays warning sounds when triggered.
 
 #### Usage
-This class is used to manage the sound effects associated with a stove counter object in the game environment. It listens to events triggered by the `StoveCounter` instance and plays or pauses the associated audio source accordingly.
+This class is used to provide audio feedback for the stove counter in the game environment. It plays sound effects to indicate when frying starts and when the cooking progress reaches a critical level, signaling that the food is close to being burned.
 
 #### Notes
-- This class ensures that the sound effects of the stove counter remain synchronized with the state changes of the associated `StoveCounter`.
-- It plays the sound effect when the stove is frying or has finished frying, and pauses the sound when the stove is idle or burned.
+- The `StoveCounterSound` class enhances the immersion of the game by providing audio feedback for stove counter actions.
+- It utilizes the audio source component to play sound effects based on the state and progress of the stove counter.
+- Warning sounds are played when the cooking progress reaches a critical level, alerting the player to take action to prevent burning the food.
+
 
 #### Code
 ```
@@ -1176,6 +1179,8 @@ public class StoveCounterSound : MonoBehaviour
 {
     [SerializeField] private StoveCounter stoveCounter;
     private AudioSource audioSource;
+    private float warningSoundTimer;
+    private bool playWarningSound;
 
     private void Awake()
     {
@@ -1185,23 +1190,47 @@ public class StoveCounterSound : MonoBehaviour
     private void Start()
     {
         stoveCounter.OnStateChanged += StoveCounter_OnStateChanged;
+        stoveCounter.OnProgressChanged += StoveCounter_OnProgressChanged;
     }
 
-    void StoveCounter_OnStateChanged(object sender, StoveCounter.OnStateChangedEventArgs e)
+    private void StoveCounter_OnStateChanged(object sender, StoveCounter.OnStateChangedEventArgs e)
     {
-        bool playSound = e.state == StoveCounter.State.Frying || e.state == StoveCounter.State.Fried;
+        bool playSound = (e.state == StoveCounter.State.Frying) || (e.state == StoveCounter.State.Fried);
 
         if (playSound)
         {
-            audioSource.Play();
+            if (!audioSource.isPlaying)
+            {
+                audioSource.Play();
+            }
         }
         else
         {
             audioSource.Pause();
         }
     }
-}
 
+    private void StoveCounter_OnProgressChanged(object sender, IHasProgress.OnProgressChangedEventArgs e)
+    {
+        float burnShowProgressAmount = .5f;
+        playWarningSound = stoveCounter.IsFried() && e.progressNormalized >= burnShowProgressAmount;
+    }
+
+    private void Update()
+    {
+        if (playWarningSound)
+        {
+            warningSoundTimer -= Time.deltaTime;
+            if (warningSoundTimer <= 0f)
+            {
+                float warningSoundTimerMax = .2f;
+                warningSoundTimer = warningSoundTimerMax;
+
+                SoundManager.Instance.PlayWarningSound(stoveCounter.transform.position);
+            }
+        }
+    }
+}
 ```
 
 ---
