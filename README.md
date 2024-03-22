@@ -19,6 +19,8 @@
        - [7a. StoveCounterVisual.cs](README.md#7a-stovecountervisualcs) 
        - [7b. StoveCounterSound.cs](README.md#7b-stovecountersoundcs)
      - [8. TrashCounter.cs](README.md#8-trashcountercs)
+   - GameInput
+      - [1. GameInput.cs](README.md#1-gameinputcs)  
    - ScriptableObjects
      - [1. AudioClipRefsSO.cs](README.md#1-audiocliprefssocs)
      - [2. BurningRecipeSO.cs](README.md#2-burningrecipesocs)
@@ -1356,6 +1358,204 @@ public class TrashCounter : BaseCounter
                 //Player has Nothing
             }
         }
+    }
+}
+```
+---
+## Game Input
+
+### [1. GameInput.cs](README.md#1-scripts)
+
+#### Description
+The `GameInput` script manages player input actions and key bindings. It provides functionality to handle various input actions such as movement, interaction, and pausing the game. Additionally, it supports rebinding key bindings dynamically during runtime.
+
+#### Fields
+- `public static GameInput Instance`: Static reference to the singleton instance of the `GameInput` class.
+- `public event EventHandler OnInteractAction`: Event triggered when the interact action is performed.
+- `public event EventHandler OnInteractAlternateAction`: Event triggered when the alternate interact action is performed.
+- `public event EventHandler OnPauseAction`: Event triggered when the pause action is performed.
+
+#### Methods
+- `public Vector2 GetMovementVectorNormalized()`: Returns the normalized movement vector input by the player.
+- `public string GetBindingText(Binding binding)`: Returns the display string of the specified input binding.
+- `public void RebindBinding(Binding binding, Action onActionRebound)`: Initiates the rebinding process for the specified input binding.
+
+#### Usage
+The `GameInput` script is responsible for managing player input and key bindings within the game. It allows developers to define custom input actions and key bindings, as well as handle events triggered by these actions.
+
+#### Notes
+- The `GameInput` class uses the Unity Input System to handle player input actions.
+- It provides a flexible way to define and rebind input actions dynamically, enhancing player accessibility and customization options.
+- Key bindings are saved and loaded using PlayerPrefs, allowing them to persist across game sessions.
+
+
+#### Code
+```
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using Unity.VisualScripting;
+using UnityEngine;
+using UnityEngine.InputSystem;
+
+public class GameInput : MonoBehaviour
+{
+    private const string PLAYER_PREFS_BINDINGS = "InputBindigs";
+
+    public static GameInput Instance { get; private set; }
+
+    public event EventHandler OnInteractAction;
+    public event EventHandler OnInteractAlternateAction;
+    public event EventHandler OnPauseAction;
+    public event EventHandler OnBindingRebind;
+
+    public enum Binding 
+    {
+        Move_Up,
+        Move_Down,
+        Move_Left,
+        Move_Right,
+        Interact,
+        InteractAlternate,
+        Gamepad_Interact,
+        Gamepad_InteractAlternate
+    }
+
+    private PlayerInputActions playerInputActions;
+
+    private void Awake()
+    {
+        Instance = this;
+
+        playerInputActions = new PlayerInputActions();
+
+        if (PlayerPrefs.HasKey(PLAYER_PREFS_BINDINGS))
+        {
+            playerInputActions.LoadBindingOverridesFromJson(PlayerPrefs.GetString(PLAYER_PREFS_BINDINGS));
+        }
+        
+        playerInputActions.Player.Enable();
+
+        playerInputActions.Player.Interact.performed += Interact_performed;
+        playerInputActions.Player.InteractAlternate.performed += InteractAlternate_performed;
+        playerInputActions.Player.Pause.performed += Pause_performed;
+    }
+
+    private void OnDestroy()
+    {
+        playerInputActions.Player.Interact.performed -= Interact_performed;
+        playerInputActions.Player.InteractAlternate.performed -= InteractAlternate_performed;
+        playerInputActions.Player.Pause.performed -= Pause_performed;
+
+        playerInputActions.Dispose();
+    }
+
+    private void Interact_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
+    {
+        OnInteractAction?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void InteractAlternate_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
+    {
+        OnInteractAlternateAction?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void Pause_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
+    {
+        OnPauseAction?.Invoke(this, EventArgs.Empty);
+    }
+
+    public Vector2 GetMovementVectorNormalized()
+    {
+        Vector2 inputVector = playerInputActions.Player.Move.ReadValue<Vector2>();
+
+        inputVector = inputVector.normalized;
+
+        return inputVector;
+    }
+
+    public string GetBindingText(Binding binding)
+    {
+        switch (binding)
+        {
+            default:
+            case Binding.Move_Up:
+                return playerInputActions.Player.Move.bindings[1].ToDisplayString();
+            case Binding.Move_Down:
+                return playerInputActions.Player.Move.bindings[2].ToDisplayString();
+            case Binding.Move_Left:
+                return playerInputActions.Player.Move.bindings[3].ToDisplayString();
+            case Binding.Move_Right:
+                return playerInputActions.Player.Move.bindings[4].ToDisplayString();
+            case Binding.Interact:
+                return playerInputActions.Player.Interact.bindings[0].ToDisplayString();
+            case Binding.InteractAlternate:
+                return playerInputActions.Player.InteractAlternate.bindings[0].ToDisplayString();
+            case Binding.Gamepad_Interact:
+                return playerInputActions.Player.Interact.bindings[1].ToDisplayString();
+            case Binding.Gamepad_InteractAlternate:
+                return playerInputActions.Player.InteractAlternate.bindings[1].ToDisplayString();
+        }
+    }
+
+    public void RebindBinding(Binding binding, Action onActionRebound)
+    {
+        playerInputActions.Player.Disable();
+
+        InputAction inputAction;
+        int bindingIndex;
+
+
+        switch (binding)
+        {
+            default:
+            case Binding.Move_Up:
+                inputAction = playerInputActions.Player.Move;
+                bindingIndex = 1;
+                break;
+            case Binding.Move_Down:
+                inputAction = playerInputActions.Player.Move;
+                bindingIndex = 2;
+                break;
+            case Binding.Move_Left:
+                inputAction = playerInputActions.Player.Move;
+                bindingIndex = 3;
+                break;
+            case Binding.Move_Right:
+                inputAction = playerInputActions.Player.Move;
+                bindingIndex = 4;
+                break;
+            case Binding.Interact:
+                inputAction = playerInputActions.Player.Interact;
+                bindingIndex = 0;
+                break;
+            case Binding.InteractAlternate:
+                inputAction = playerInputActions.Player.InteractAlternate;
+                bindingIndex = 0;
+                break;
+            case Binding.Gamepad_Interact:
+                inputAction = playerInputActions.Player.Interact;
+                bindingIndex = 1;
+                break;
+            case Binding.Gamepad_InteractAlternate:
+                inputAction = playerInputActions.Player.InteractAlternate;
+                bindingIndex = 1;
+                break;
+        }
+
+        inputAction.PerformInteractiveRebinding(bindingIndex)
+            .OnComplete(callback => 
+            {
+                callback.Dispose();
+                playerInputActions.Player.Enable();
+                onActionRebound();
+
+                PlayerPrefs.SetString(PLAYER_PREFS_BINDINGS, playerInputActions.SaveBindingOverridesAsJson());
+                PlayerPrefs.Save();
+
+                OnBindingRebind?.Invoke(this, EventArgs.Empty);
+            })
+            .Start();
     }
 }
 ```
