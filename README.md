@@ -735,7 +735,7 @@ public class PlatesCounter : BaseCounter
         {
             spawnPlateTimer = 0f;
 
-            if (platesSpawnedAmount < platesSpawnedAmountMax)
+            if (KitchenGameManager.Instance.IsGamePlaying() && platesSpawnedAmount < platesSpawnedAmountMax)
             {
                 platesSpawnedAmount++;
                 OnPlateSpawned?.Invoke(this, EventArgs.Empty);
@@ -840,7 +840,7 @@ public class PlatesCounterVisual : MonoBehaviour
 ### [7. StoveCounter.cs](README.md#1-scripts)
 
 #### Description
-This class represents a stove counter object. It inherits functionality from the `BaseCounter` class and implements behavior specific to frying and burning recipes.
+This class represents a stove counter object. It inherits functionality from the `BaseCounter` class and implements the `IHasProgress` interface to track the progress of frying and burning operations. It manages the frying and burning states of kitchen objects placed on the stove counter.
 
 #### Inherits from
 - `BaseCounter`
@@ -849,34 +849,42 @@ This class represents a stove counter object. It inherits functionality from the
 #### Events
 - `public event EventHandler<IHasProgress.OnProgressChangedEventArgs> OnProgressChanged`: Event triggered when the progress of frying or burning changes.
 - `public event EventHandler<OnStateChangedEventArgs> OnStateChanged`: Event triggered when the state of the stove counter changes.
-    - `public class OnStateChangedEventArgs : EventArgs`
-        - `public State state`: The current state of the stove counter.
+
+#### Nested Classes
+- `public class OnStateChangedEventArgs : EventArgs`: Nested class representing event arguments for state change events.
+
+#### Enums
+- `public enum State`: Enumeration representing the possible states of the stove counter.
+    - `Idle`: The stove counter is idle.
+    - `Frying`: The stove counter is frying a kitchen object.
+    - `Fried`: The kitchen object on the stove counter is fried.
+    - `Burned`: The kitchen object on the stove counter is burned.
 
 #### Fields
-- `[SerializeField] private FryingRecipeSO[] fryingRecipeSOArray`: Serialized array of `FryingRecipeSO` instances representing the frying recipes available for this stove counter.
-- `[SerializeField] private BuringRecipeSO[] burningRecipeSOArray`: Serialized array of `BuringRecipeSO` instances representing the burning recipes available for this stove counter.
-- `private State state`: Enum representing the current state of the stove counter (Idle, Frying, Fried, Burned).
-- `private float fryingTimer`: Timer for tracking the frying progress.
-- `private FryingRecipeSO fryingRecipeSO`: Reference to the frying recipe currently being processed.
-- `private float buringTimer`: Timer for tracking the burning progress.
-- `private BuringRecipeSO burningRecipeSO`: Reference to the burning recipe currently being processed.
+- `[SerializeField] private FryingRecipeSO[] fryingRecipeSOArray`: Array of frying recipe scriptable objects.
+- `[SerializeField] private BuringRecipeSO[] burningRecipeSOArray`: Array of burning recipe scriptable objects.
+- `private State state`: Current state of the stove counter.
+- `private float fryingTimer`: Timer for frying operation.
+- `private FryingRecipeSO fryingRecipeSO`: Frying recipe scriptable object for the current frying operation.
+- `private float buringTimer`: Timer for burning operation.
+- `private BuringRecipeSO burningRecipeSO`: Burning recipe scriptable object for the current burning operation.
 
 #### Methods
-- `private void Start()`: Unity lifecycle method called before the first frame update. Initializes the stove counter state to Idle.
-- `private void Update()`: Unity lifecycle method called once per frame. Updates the progress of frying or burning based on the current state of the stove counter.
-- `public override void Interact(Player player)`: Overrides the base class method to implement interaction behavior when a player interacts with the stove counter.
-    - Handles interactions such as placing ingredients, frying, and removing cooked items.
-- `private bool HasRecipeWithInput(KitchenObjectSO inputKitchenObjectSO)`: Checks if there is a frying recipe available for the input kitchen object.
-- `private KitchenObjectSO GetOutputForInput(KitchenObjectSO inputKitchenObjectSO)`: Retrieves the output kitchen object associated with the input kitchen object from the frying recipe.
-- `private FryingRecipeSO GetFryingRecipeSOWithInput(KitchenObjectSO inputKitchenObjectSO)`: Retrieves the frying recipe that matches the input kitchen object from the array of frying recipes.
-- `private BuringRecipeSO GetBurningRecipeSOWithInput(KitchenObjectSO inputKitchenObjectSO)`: Retrieves the burning recipe that matches the input kitchen object from the array of burning recipes.
+- `private void Start()`: Unity lifecycle method called before the first frame update. Initializes the stove counter with the idle state.
+- `private void Update()`: Unity lifecycle method called once per frame. Updates the frying and burning operations based on the current state of the stove counter.
+- `public override void Interact(Player player)`: Overrides the base class method to implement interaction behavior when a player interacts with the stove counter. Handles placing kitchen objects on the stove counter and managing frying and burning operations.
+- `private bool HasRecipeWithInput(KitchenObjectSO inputKitchenObjectSO)`: Checks if there is a frying recipe available for the given input kitchen object.
+- `private KitchenObjectSO GetOutputForInput(KitchenObjectSO inputKitchenObjectSO)`: Gets the output kitchen object for the given input kitchen object based on the frying recipe.
+- `private FryingRecipeSO GetFryingRecipeSOWithInput(KitchenObjectSO inputKitchenObjectSO)`: Retrieves the frying recipe scriptable object for the given input kitchen object.
+- `private BuringRecipeSO GetBurningRecipeSOWithInput(KitchenObjectSO inputKitchenObjectSO)`: Retrieves the burning recipe scriptable object for the given input kitchen object.
+- `public bool IsFried()`: Checks if the kitchen object on the stove counter is fried.
 
 #### Usage
-This class is used to define the behavior of a stove counter in the game environment, allowing players to fry and burn ingredients to create cooked items.
+This class is used to manage frying and burning operations on a stove counter in the game environment. It allows players to interact with the stove counter by placing kitchen objects for frying and burning.
 
 #### Notes
-- This class extends functionality from the `BaseCounter` class and implements the `IHasProgress` interface to track progress.
-- It manages the state of the stove counter and processes frying and burning recipes based on player interactions.
+- The `StoveCounter` class provides functionality to simulate frying and burning operations on kitchen objects placed on a stove counter.
+- It utilizes frying and burning recipe scriptable objects to determine the outcome of frying and burning operations based on the input kitchen object.
 - Events are used to notify other game systems or objects when the progress or state of the stove counter changes.
 
 #### Code
@@ -1074,6 +1082,11 @@ public class StoveCounter : BaseCounter, IHasProgress
         }
 
         return null;
+    }
+
+    public bool IsFried()
+    {
+        return state == State.Fried;
     }
 }
 ```
