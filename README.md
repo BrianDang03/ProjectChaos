@@ -2406,6 +2406,289 @@ public class SoundManager : MonoBehaviour
 ```
 
 ---
+## Player
+### [1. Player.cs](README.md#1-scripts)
+
+#### Description
+The `Player` class represents the player character in the game. It handles player movement, interactions with kitchen objects, and selection of kitchen counters.
+
+#### Fields
+- `public static Player Instance`: Singleton instance of the `Player`.
+- `public event EventHandler OnPickedSomehing`: Event invoked when the player picks up something.
+- `public event EventHandler<OnSelectedCounterChangedEventArgs> OnSelectedCounterChanged`: Event invoked when the selected kitchen counter changes.
+- `[SerializeField] private float movementSpeed = 7f`: Speed of the player's movement.
+- `[SerializeField] private float rotationSpeed = 10f`: Speed of the player's rotation.
+- `[SerializeField] private GameInput gameInput`: Reference to the `GameInput` component for player input.
+- `[SerializeField] private LayerMask countersLayerMask`: Layer mask for detecting kitchen counters.
+- `[SerializeField] private Transform kitchenObjectHoldPoint`: Hold point for kitchen objects picked up by the player.
+- `private bool isWalking`: Flag indicating whether the player is currently walking.
+- `private Vector3 lastInteractDir`: Last direction of interaction.
+- `private BaseCounter selectedCounter`: Currently selected kitchen counter.
+- `private KitchenObject kitchenObject`: Kitchen object currently held by the player.
+
+#### Methods
+- `private void Awake()`: Initializes the singleton instance of the player.
+- `private void Start()`: Subscribes to input events for player interactions.
+- `private void GameInput_OnInteractAction(object sender, EventArgs e)`: Handles the primary interact action input event.
+- `private void GameInput_OnInteractAlternateAction(object sender, EventArgs e)`: Handles the alternate interact action input event.
+- `private void Update()`: Updates player movement and interactions.
+- `private void PlayerMovementInput()`: Handles player movement based on input.
+- `private void PlayerInteractions()`: Handles player interactions with kitchen counters.
+- `private void SetSelectedCounter(BaseCounter selectedCounter)`: Sets the currently selected kitchen counter.
+- `public Transform GetKitchenObjectFollowTransform()`: Returns the hold point transform for kitchen objects.
+- `public void SetKitchenObject(KitchenObject kitchenObject)`: Sets the kitchen object currently held by the player.
+- `public KitchenObject GetKitchenObject()`: Returns the kitchen object held by the player.
+- `public void ClearKitchenObject()`: Clears the kitchen object held by the player.
+- `public bool HasKitchenObject()`: Returns true if the player is currently holding a kitchen object.
+
+#### Usage
+Attach this script to the player GameObject in the scene to control player movement and interactions with kitchen objects. Assign the necessary references in the inspector, such as the `GameInput` component and the kitchen object hold point.
+
+#### Notes
+- Ensure that the player GameObject has a collider to detect collisions with kitchen counters.
+- Adjust movement and rotation speeds in the inspector to achieve the desired player behavior.
+
+#### Code
+```
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using System;
+using Unity.VisualScripting;
+
+public class Player : MonoBehaviour, IKitchenObjectParent
+{
+    private static Player instance;
+    public static Player Instance { get { return instance; } private set { instance = value; } }
+
+    public event EventHandler OnPickedSomehing;
+    public event EventHandler<OnSelectedCounterChangedEventArgs> OnSelectedCounterChanged;
+    public class OnSelectedCounterChangedEventArgs : EventArgs
+    {
+        public BaseCounter selectedCounter;
+    }
+
+    [SerializeField] private float movementSpeed = 7f;
+    [SerializeField] private float rotationSpeed = 10f;
+    [SerializeField] private GameInput gameInput;
+    [SerializeField] private LayerMask countersLayerMask;
+    [SerializeField] private Transform kitchenObjectHoldPoint;
+
+    private bool isWalking;
+    public bool IsWalking { get { return isWalking; } }
+    private Vector3 lastInteractDir;
+    private BaseCounter selectedCounter;
+    private KitchenObject kitchenObject;
+
+    private void Awake()
+    {
+        if (Instance != null)
+        {
+            Debug.LogError("There is more than one Player instance");
+        }
+        Instance = this;
+    }
+
+    private void Start()
+    {
+        gameInput.OnInteractAction += GameInput_OnInteractAction;
+        gameInput.OnInteractAlternateAction += GameInput_OnInteractAlternateAction;
+    }
+
+    private void GameInput_OnInteractAction(object sender, EventArgs e)
+    {
+        if (!KitchenGameManager.Instance.IsGamePlaying()) return;
+
+        if (selectedCounter != null)
+        {
+            selectedCounter.Interact(this);
+        }
+    }
+
+    private void GameInput_OnInteractAlternateAction(object sender, EventArgs e)
+    {
+        if (!KitchenGameManager.Instance.IsGamePlaying()) return;
+
+        if (selectedCounter != null)
+        {
+            selectedCounter.InteractAlternate(this);
+        }
+    }
+
+    private void Update()
+    {
+        PlayerMovementInput();
+        PlayerInteractions();
+    }
+
+    private void PlayerMovementInput()
+    {
+        Vector2 inputVector = gameInput.GetMovementVectorNormalized();
+        Vector3 moveDir = new Vector3(inputVector.x, 0, inputVector.y);
+
+        float moveDistance = movementSpeed * Time.deltaTime;
+        float playerRadius = .65f;
+        float playerHeight = 2f;
+        bool canMove = !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * playerHeight, playerRadius, moveDir, moveDistance);
+
+        if (!canMove)
+        {
+            Vector3 moveDirX = new Vector3(moveDir.x, 0, 0).normalized;
+            canMove = (moveDir.x < -.5f || moveDir.x > +.5f) && !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * playerHeight, playerRadius, moveDirX, moveDistance);
+
+            if (canMove)
+            {
+                moveDir = moveDirX;
+            }
+            else
+            {
+                Vector3 moveDirZ = new Vector3(0, 0, moveDir.z).normalized;
+                canMove = (moveDir.z < -.5f || moveDir.z > +.5f) && !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * playerHeight, playerRadius, moveDirZ, moveDistance);
+
+                if (canMove)
+                {
+                    moveDir = moveDirZ;
+                }
+                else
+                {
+                    //Don't Move
+                }
+            }
+        }
+
+        if (canMove)
+        {
+            transform.position += moveDir * moveDistance;
+        }
+
+        isWalking = moveDir != Vector3.zero;
+
+        transform.forward = Vector3.Slerp(transform.forward, moveDir, Time.deltaTime * rotationSpeed);
+    }
+
+    private void PlayerInteractions()
+    {
+        Vector2 inputVector = gameInput.GetMovementVectorNormalized();
+        Vector3 moveDir = new Vector3(inputVector.x, 0, inputVector.y);
+
+        float interactDistance = 2f;
+
+        if (moveDir != Vector3.zero)
+        {
+            lastInteractDir = moveDir;
+        }
+
+        if (Physics.Raycast(transform.position, lastInteractDir, out RaycastHit raycastHit, interactDistance, countersLayerMask))
+        {
+            if (raycastHit.transform.TryGetComponent(out BaseCounter baseCounter))
+            {
+                if (baseCounter != selectedCounter)
+                {
+                    SetSelectedCounter(baseCounter);
+                }
+            }
+            else
+            {
+                SetSelectedCounter(null);
+            }
+        }
+        else
+        {
+            SetSelectedCounter(null);
+        }
+    }
+
+    private void SetSelectedCounter(BaseCounter selectedCounter)
+    {
+        this.selectedCounter = selectedCounter;
+
+        OnSelectedCounterChanged?.Invoke(this, new OnSelectedCounterChangedEventArgs
+        {
+            selectedCounter = selectedCounter
+        });
+    }
+
+    public Transform GetKitchenObjectFollowTransform()
+    {
+        return kitchenObjectHoldPoint;
+    }
+
+    public void SetKitchenObject(KitchenObject kitchenObject)
+    {
+        this.kitchenObject = kitchenObject;
+
+        if (kitchenObject != null)
+        {
+            OnPickedSomehing?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    public KitchenObject GetKitchenObject()
+    {
+        return kitchenObject;
+    }
+
+    public void ClearKitchenObject()
+    {
+        kitchenObject = null;
+    }
+
+    public bool HasKitchenObject()
+    {
+        return kitchenObject != null;
+    }
+}
+```
+
+---
+### [2. PlayerAnimator.cs](README.md#2-playeranimator)
+
+#### Description
+The `PlayerAnimator` class controls the animation of the player character based on the player's movement state.
+
+#### Fields
+- `[SerializeField] private Player player`: Reference to the `Player` component for accessing player movement state.
+- `private Animator animator`: Reference to the Animator component attached to the GameObject.
+
+#### Methods
+- `private void Awake()`: Initializes the Animator component reference.
+- `private void Update()`: Updates the "IsWalking" parameter of the Animator based on the player's movement state.
+
+#### Usage
+Attach this script to the GameObject representing the player character in the scene. Assign the `Player` component reference in the inspector to link it with the player's movement state.
+
+#### Notes
+- Ensure that the Animator component attached to the player GameObject has a boolean parameter named "IsWalking" to control the walking animation.
+- This script updates the "IsWalking" parameter of the Animator based on the player's movement state, enabling or disabling the walking animation accordingly.
+
+#### Code 
+```
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class PlayerAnimator : MonoBehaviour
+{
+    private const string IS_WALKING = "IsWalking";
+
+    [SerializeField] private Player player;
+
+    private Animator animator;
+
+    private void Awake()
+    {
+        animator = GetComponent<Animator>();
+    }
+
+    private void Update()
+    {
+        animator.SetBool(IS_WALKING, player.IsWalking);
+    }
+}
+```
+
+---
 ## ScriptableObjects
 ### [1. AudioClipRefsSO.cs](README.md#1-scripts)
 
