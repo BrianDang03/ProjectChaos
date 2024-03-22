@@ -35,6 +35,11 @@
      - [3. MusicManager.cs](README.md#3-musicmanagercs)
      - [4. ResetStaticDataManager.cs](README.md#4-resetstaticdatamanagercs)
      - [5. SoundManager.cs](README.md#5-soundmanagercs)
+   - Player
+     - [1. Player.cs](README.md#1-playercs)
+     - [2. PlayerAnimator.cs](README.md#2-playeranimatorcs)
+     - [3. PlayerSounds.cs](README.md#3-playersoundscs)
+     - [4. SelectedCounterVisual.cs](README.md#4-slectedcountervisualcs)
    - ScriptableObjects
      - [1. AudioClipRefsSO.cs](README.md#1-audiocliprefssocs)
      - [2. BurningRecipeSO.cs](README.md#2-burningrecipesocs)
