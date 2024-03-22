@@ -696,15 +696,17 @@ This class represents a plates counter object. It inherits functionality from th
 #### Methods
 - `private void Update()`: Unity lifecycle method called once per frame. Updates the timer for spawning plates and spawns a plate if the timer exceeds the maximum value and the maximum number of plates has not been reached.
 - `public override void Interact(Player player)`: Overrides the base class method to implement interaction behavior when a player interacts with the plates counter.
-    - If the player is empty-handed and there are plates available on the counter:
-        - Removes a plate from the counter, spawns it to the player, and triggers the `OnPlateRemoved` event.
+    - If the player is empty-handed and the game is playing, and there are plates available on the counter:
+        - Increases the count of plates spawned.
+        - Triggers the `OnPlateSpawned` event.
+- `private void OnPlateSpawned()`: Event handler method called when a plate is spawned on the plates counter. Increments the count of plates spawned.
 
 #### Usage
-This class is used to define the behavior of a plate counter in the game environment, allowing players to interact with plates by picking them up from the plates counter.
+This class is used to manage the spawning and removal of plates on a plates counter in the game environment.
 
 #### Notes
-- This class extends functionality from the `BaseCounter` class, providing behavior specific to managing plates in the game.
-- It tracks the number of plates spawned on the counter and controls the spawning and removal of plates based on player interactions.
+- The `PlatesCounter` class provides functionality to handle interactions with plates, including spawning and removing plates from the counter.
+- It tracks the number of plates spawned and ensures that plates are spawned within the specified limits.
 - Events are used to notify other game systems or objects when plates are spawned or removed from the plates counter.
 
 #### Code
