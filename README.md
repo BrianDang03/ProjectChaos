@@ -1738,6 +1738,101 @@ public class KitchenObject : MonoBehaviour
 ```
 
 ---
+## LoadScreen
+
+### [1. Loader.cs](README.md#1-scripts)
+
+#### Description
+The `Loader` class provides functionality for loading different scenes within the game. It includes methods for loading specific scenes and handling scene loading callbacks.
+
+#### Fields
+- `public enum Scene`: Enumeration defining the available scenes, including the main menu, main game scene, and loading scene.
+- `public static Scene targetScene`: Static field to store the target scene to be loaded.
+
+#### Methods
+- `public static void Load(Scene targetScene)`: Loads the specified target scene, setting it as the target scene to be loaded.
+- `public static void LoaderCallback()`: Callback method called after the loading scene finishes loading. It loads the target scene stored in `targetScene`.
+
+#### Usage
+The `Loader` class simplifies the process of loading different scenes within the game. By using the provided `Load` method, developers can specify which scene to load, and the `LoaderCallback` method ensures that the target scene is loaded after the loading scene finishes loading.
+
+#### Notes
+- This class follows a static design pattern, providing a centralized way to manage scene loading throughout the game.
+- It helps maintain cleaner and more organized scene management code by encapsulating loading logic in a separate class.
+
+#### Code
+```
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+public static class Loader
+{
+    public enum Scene
+    {
+        MainMenu,
+        Main,
+        LoadingScene
+    }
+
+    public static Scene targetScene;
+
+    public static void Load(Scene targetScene)
+    {
+        Loader.targetScene = targetScene;
+
+        SceneManager.LoadScene(Scene.LoadingScene.ToString());
+    }
+
+    public static void LoaderCallback()
+    {
+        SceneManager.LoadScene(targetScene.ToString());
+    }
+}
+```
+
+---
+### [2. LoaderCallback.cs](README.md#1-scripts)
+
+#### Description
+The `LoaderCallback` class ensures that the target scene specified by the `Loader` class is loaded after the loading scene finishes loading. It executes the `Loader.LoaderCallback()` method once, immediately after the first update frame.
+
+#### Fields
+- `private bool isFirstUpdate`: Flag to track if the first update frame has occurred.
+
+#### Methods
+- `private void Update()`: Unity lifecycle method called once per frame. It checks if it's the first update frame and executes the `Loader.LoaderCallback()` method once to load the target scene.
+
+#### Usage
+This class is typically attached to a GameObject in the loading scene. It ensures that the target scene specified by the `Loader` class is loaded automatically after the loading scene finishes loading.
+
+#### Notes
+- By executing the callback method after the first update frame, this class ensures that any initialization or setup required for the target scene can be performed before the scene becomes active.
+
+#### Code
+```
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class LoaderCallback : MonoBehaviour
+{
+    private bool isFirstUpdate = true;
+
+    private void Update()
+    {
+        if (isFirstUpdate)
+        {
+            isFirstUpdate = false;
+
+            Loader.LoaderCallback();
+        }
+    }
+}
+```
+
+---
 ## ScriptableObjects
 ### [1. AudioClipRefsSO.cs](README.md#1-scripts)
 
