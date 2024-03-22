@@ -37,6 +37,8 @@
       - [9. PlateIconsSingleUI.cs](README.md#9-plateiconssingleuics)
       - [10. PlateIconUI.cs](README.md#10-plateiconuics)
       - [11. ProgressBarUI.cs](README.md#11-progressbaruics)
+      - [12. StoveBurnWarningUI.cs](README.md#12-stoveburnwarninguics)
+      - [13. TutorialUI.cs](README.md#13-tutorialuics)
 ---
 # Scripts
 ---
@@ -696,15 +698,17 @@ This class represents a plates counter object. It inherits functionality from th
 #### Methods
 - `private void Update()`: Unity lifecycle method called once per frame. Updates the timer for spawning plates and spawns a plate if the timer exceeds the maximum value and the maximum number of plates has not been reached.
 - `public override void Interact(Player player)`: Overrides the base class method to implement interaction behavior when a player interacts with the plates counter.
-    - If the player is empty-handed and there are plates available on the counter:
-        - Removes a plate from the counter, spawns it to the player, and triggers the `OnPlateRemoved` event.
+    - If the player is empty-handed and the game is playing, and there are plates available on the counter:
+        - Increases the count of plates spawned.
+        - Triggers the `OnPlateSpawned` event.
+- `private void OnPlateSpawned()`: Event handler method called when a plate is spawned on the plates counter. Increments the count of plates spawned.
 
 #### Usage
-This class is used to define the behavior of a plate counter in the game environment, allowing players to interact with plates by picking them up from the plates counter.
+This class is used to manage the spawning and removal of plates on a plates counter in the game environment.
 
 #### Notes
-- This class extends functionality from the `BaseCounter` class, providing behavior specific to managing plates in the game.
-- It tracks the number of plates spawned on the counter and controls the spawning and removal of plates based on player interactions.
+- The `PlatesCounter` class provides functionality to handle interactions with plates, including spawning and removing plates from the counter.
+- It tracks the number of plates spawned and ensures that plates are spawned within the specified limits.
 - Events are used to notify other game systems or objects when plates are spawned or removed from the plates counter.
 
 #### Code
@@ -733,7 +737,7 @@ public class PlatesCounter : BaseCounter
         {
             spawnPlateTimer = 0f;
 
-            if (platesSpawnedAmount < platesSpawnedAmountMax)
+            if (KitchenGameManager.Instance.IsGamePlaying() && platesSpawnedAmount < platesSpawnedAmountMax)
             {
                 platesSpawnedAmount++;
                 OnPlateSpawned?.Invoke(this, EventArgs.Empty);
@@ -838,7 +842,7 @@ public class PlatesCounterVisual : MonoBehaviour
 ### [7. StoveCounter.cs](README.md#1-scripts)
 
 #### Description
-This class represents a stove counter object. It inherits functionality from the `BaseCounter` class and implements behavior specific to frying and burning recipes.
+This class represents a stove counter object. It inherits functionality from the `BaseCounter` class and implements the `IHasProgress` interface to track the progress of frying and burning operations. It manages the frying and burning states of kitchen objects placed on the stove counter.
 
 #### Inherits from
 - `BaseCounter`
@@ -847,34 +851,42 @@ This class represents a stove counter object. It inherits functionality from the
 #### Events
 - `public event EventHandler<IHasProgress.OnProgressChangedEventArgs> OnProgressChanged`: Event triggered when the progress of frying or burning changes.
 - `public event EventHandler<OnStateChangedEventArgs> OnStateChanged`: Event triggered when the state of the stove counter changes.
-    - `public class OnStateChangedEventArgs : EventArgs`
-        - `public State state`: The current state of the stove counter.
+
+#### Nested Classes
+- `public class OnStateChangedEventArgs : EventArgs`: Nested class representing event arguments for state change events.
+
+#### Enums
+- `public enum State`: Enumeration representing the possible states of the stove counter.
+    - `Idle`: The stove counter is idle.
+    - `Frying`: The stove counter is frying a kitchen object.
+    - `Fried`: The kitchen object on the stove counter is fried.
+    - `Burned`: The kitchen object on the stove counter is burned.
 
 #### Fields
-- `[SerializeField] private FryingRecipeSO[] fryingRecipeSOArray`: Serialized array of `FryingRecipeSO` instances representing the frying recipes available for this stove counter.
-- `[SerializeField] private BuringRecipeSO[] burningRecipeSOArray`: Serialized array of `BuringRecipeSO` instances representing the burning recipes available for this stove counter.
-- `private State state`: Enum representing the current state of the stove counter (Idle, Frying, Fried, Burned).
-- `private float fryingTimer`: Timer for tracking the frying progress.
-- `private FryingRecipeSO fryingRecipeSO`: Reference to the frying recipe currently being processed.
-- `private float buringTimer`: Timer for tracking the burning progress.
-- `private BuringRecipeSO burningRecipeSO`: Reference to the burning recipe currently being processed.
+- `[SerializeField] private FryingRecipeSO[] fryingRecipeSOArray`: Array of frying recipe scriptable objects.
+- `[SerializeField] private BuringRecipeSO[] burningRecipeSOArray`: Array of burning recipe scriptable objects.
+- `private State state`: Current state of the stove counter.
+- `private float fryingTimer`: Timer for frying operation.
+- `private FryingRecipeSO fryingRecipeSO`: Frying recipe scriptable object for the current frying operation.
+- `private float buringTimer`: Timer for burning operation.
+- `private BuringRecipeSO burningRecipeSO`: Burning recipe scriptable object for the current burning operation.
 
 #### Methods
-- `private void Start()`: Unity lifecycle method called before the first frame update. Initializes the stove counter state to Idle.
-- `private void Update()`: Unity lifecycle method called once per frame. Updates the progress of frying or burning based on the current state of the stove counter.
-- `public override void Interact(Player player)`: Overrides the base class method to implement interaction behavior when a player interacts with the stove counter.
-    - Handles interactions such as placing ingredients, frying, and removing cooked items.
-- `private bool HasRecipeWithInput(KitchenObjectSO inputKitchenObjectSO)`: Checks if there is a frying recipe available for the input kitchen object.
-- `private KitchenObjectSO GetOutputForInput(KitchenObjectSO inputKitchenObjectSO)`: Retrieves the output kitchen object associated with the input kitchen object from the frying recipe.
-- `private FryingRecipeSO GetFryingRecipeSOWithInput(KitchenObjectSO inputKitchenObjectSO)`: Retrieves the frying recipe that matches the input kitchen object from the array of frying recipes.
-- `private BuringRecipeSO GetBurningRecipeSOWithInput(KitchenObjectSO inputKitchenObjectSO)`: Retrieves the burning recipe that matches the input kitchen object from the array of burning recipes.
+- `private void Start()`: Unity lifecycle method called before the first frame update. Initializes the stove counter with the idle state.
+- `private void Update()`: Unity lifecycle method called once per frame. Updates the frying and burning operations based on the current state of the stove counter.
+- `public override void Interact(Player player)`: Overrides the base class method to implement interaction behavior when a player interacts with the stove counter. Handles placing kitchen objects on the stove counter and managing frying and burning operations.
+- `private bool HasRecipeWithInput(KitchenObjectSO inputKitchenObjectSO)`: Checks if there is a frying recipe available for the given input kitchen object.
+- `private KitchenObjectSO GetOutputForInput(KitchenObjectSO inputKitchenObjectSO)`: Gets the output kitchen object for the given input kitchen object based on the frying recipe.
+- `private FryingRecipeSO GetFryingRecipeSOWithInput(KitchenObjectSO inputKitchenObjectSO)`: Retrieves the frying recipe scriptable object for the given input kitchen object.
+- `private BuringRecipeSO GetBurningRecipeSOWithInput(KitchenObjectSO inputKitchenObjectSO)`: Retrieves the burning recipe scriptable object for the given input kitchen object.
+- `public bool IsFried()`: Checks if the kitchen object on the stove counter is fried.
 
 #### Usage
-This class is used to define the behavior of a stove counter in the game environment, allowing players to fry and burn ingredients to create cooked items.
+This class is used to manage frying and burning operations on a stove counter in the game environment. It allows players to interact with the stove counter by placing kitchen objects for frying and burning.
 
 #### Notes
-- This class extends functionality from the `BaseCounter` class and implements the `IHasProgress` interface to track progress.
-- It manages the state of the stove counter and processes frying and burning recipes based on player interactions.
+- The `StoveCounter` class provides functionality to simulate frying and burning operations on kitchen objects placed on a stove counter.
+- It utilizes frying and burning recipe scriptable objects to determine the outcome of frying and burning operations based on the input kitchen object.
 - Events are used to notify other game systems or objects when the progress or state of the stove counter changes.
 
 #### Code
@@ -1073,6 +1085,11 @@ public class StoveCounter : BaseCounter, IHasProgress
 
         return null;
     }
+
+    public bool IsFried()
+    {
+        return state == State.Fried;
+    }
 }
 ```
 
@@ -1129,26 +1146,29 @@ public class StoveCounterVisual : MonoBehaviour
 ### [7b. StoveCounterSound.cs](README.md#1-scripts)
 
 #### Description
-This class represents the sound component of a stove counter object. It listens to the `OnStateChanged` event from a `StoveCounter` instance and plays or pauses the associated audio source based on the state of the stove.
-
-#### Inherits from
-- `MonoBehaviour`
+This class manages the sound effects for a stove counter object. It plays audio feedback based on the state and progress of the stove counter, such as when frying starts or when the cooking progress reaches a critical level.
 
 #### Fields
-- `[SerializeField] private StoveCounter stoveCounter`: Reference to the `StoveCounter` instance associated with this sound component.
-- `private AudioSource audioSource`: Reference to the AudioSource component attached to this GameObject.
+- `[SerializeField] private StoveCounter stoveCounter`: Reference to the stove counter script.
+- `private AudioSource audioSource`: Reference to the audio source component for playing sound effects.
+- `private float warningSoundTimer`: Timer for triggering warning sounds.
+- `private bool playWarningSound`: Flag indicating whether to play warning sounds based on the cooking progress.
 
 #### Methods
 - `private void Awake()`: Unity lifecycle method called when the script instance is being loaded. Initializes the audio source component.
-- `private void Start()`: Unity lifecycle method called before the first frame update. Subscribes to the `OnStateChanged` event of the associated `StoveCounter` instance.
-- `void StoveCounter_OnStateChanged(object sender, StoveCounter.OnStateChangedEventArgs e)`: Event handler method triggered when the state of the stove counter changes. Plays or pauses the audio source based on the new state.
+- `private void Start()`: Unity lifecycle method called before the first frame update. Subscribes to events triggered by the stove counter.
+- `private void StoveCounter_OnStateChanged(object sender, StoveCounter.OnStateChangedEventArgs e)`: Event handler method called when the state of the stove counter changes. Plays or pauses sound effects based on the stove counter's state.
+- `private void StoveCounter_OnProgressChanged(object sender, IHasProgress.OnProgressChangedEventArgs e)`: Event handler method called when the progress of the stove counter changes. Sets the flag to play warning sounds when the cooking progress reaches a critical level.
+- `private void Update()`: Unity lifecycle method called once per frame. Updates the warning sound timer and plays warning sounds when triggered.
 
 #### Usage
-This class is used to manage the sound effects associated with a stove counter object in the game environment. It listens to events triggered by the `StoveCounter` instance and plays or pauses the associated audio source accordingly.
+This class is used to provide audio feedback for the stove counter in the game environment. It plays sound effects to indicate when frying starts and when the cooking progress reaches a critical level, signaling that the food is close to being burned.
 
 #### Notes
-- This class ensures that the sound effects of the stove counter remain synchronized with the state changes of the associated `StoveCounter`.
-- It plays the sound effect when the stove is frying or has finished frying, and pauses the sound when the stove is idle or burned.
+- The `StoveCounterSound` class enhances the immersion of the game by providing audio feedback for stove counter actions.
+- It utilizes the audio source component to play sound effects based on the state and progress of the stove counter.
+- Warning sounds are played when the cooking progress reaches a critical level, alerting the player to take action to prevent burning the food.
+
 
 #### Code
 ```
@@ -1161,6 +1181,8 @@ public class StoveCounterSound : MonoBehaviour
 {
     [SerializeField] private StoveCounter stoveCounter;
     private AudioSource audioSource;
+    private float warningSoundTimer;
+    private bool playWarningSound;
 
     private void Awake()
     {
@@ -1170,23 +1192,47 @@ public class StoveCounterSound : MonoBehaviour
     private void Start()
     {
         stoveCounter.OnStateChanged += StoveCounter_OnStateChanged;
+        stoveCounter.OnProgressChanged += StoveCounter_OnProgressChanged;
     }
 
-    void StoveCounter_OnStateChanged(object sender, StoveCounter.OnStateChangedEventArgs e)
+    private void StoveCounter_OnStateChanged(object sender, StoveCounter.OnStateChangedEventArgs e)
     {
-        bool playSound = e.state == StoveCounter.State.Frying || e.state == StoveCounter.State.Fried;
+        bool playSound = (e.state == StoveCounter.State.Frying) || (e.state == StoveCounter.State.Fried);
 
         if (playSound)
         {
-            audioSource.Play();
+            if (!audioSource.isPlaying)
+            {
+                audioSource.Play();
+            }
         }
         else
         {
             audioSource.Pause();
         }
     }
-}
 
+    private void StoveCounter_OnProgressChanged(object sender, IHasProgress.OnProgressChangedEventArgs e)
+    {
+        float burnShowProgressAmount = .5f;
+        playWarningSound = stoveCounter.IsFried() && e.progressNormalized >= burnShowProgressAmount;
+    }
+
+    private void Update()
+    {
+        if (playWarningSound)
+        {
+            warningSoundTimer -= Time.deltaTime;
+            if (warningSoundTimer <= 0f)
+            {
+                float warningSoundTimerMax = .2f;
+                warningSoundTimer = warningSoundTimerMax;
+
+                SoundManager.Instance.PlayWarningSound(stoveCounter.transform.position);
+            }
+        }
+    }
+}
 ```
 
 ---
@@ -1794,11 +1840,14 @@ This script is attached to a GameObject in the scene representing the pause menu
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class GamePauseUI : MonoBehaviour
 {
+
+    public static GamePauseUI Instance { get; private set; }
 
     [SerializeField] private Button resumeButton;
     [SerializeField] private Button mainMenuButton;
@@ -1806,6 +1855,8 @@ public class GamePauseUI : MonoBehaviour
 
     private void Awake()
     {
+        Instance = this;
+
         resumeButton.onClick.AddListener(() =>
         {
             KitchenGameManager.Instance.TogglePauseGame();
@@ -1818,6 +1869,7 @@ public class GamePauseUI : MonoBehaviour
 
         optionsButton.onClick.AddListener(() =>
         {
+            Hide();
             OptionsUI.Instance.Show();
         });
     }
@@ -1840,9 +1892,12 @@ public class GamePauseUI : MonoBehaviour
         Hide();
     }
 
-    private void Show()
+    public void Show()
     {
         gameObject.SetActive(true);
+
+        //Controller
+        //resumeButton.Select();
     }
 
     private void Hide()
@@ -1850,7 +1905,6 @@ public class GamePauseUI : MonoBehaviour
         gameObject.SetActive(false);
     }
 }
-
 ```
 
 ---
@@ -1896,28 +1950,29 @@ public class GamePlayingClockUI : MonoBehaviour
 ### [6. GameStartCountdownUI.cs](README.md#1-scripts)
 
 #### Description
-This script manages the user interface (UI) for displaying a countdown timer before the start of the game. It updates the countdown text based on the remaining time until the game starts.
-
-#### Inherits from
-- `MonoBehaviour`
+This script manages the countdown UI displayed at the start of the game. It updates the countdown text based on the countdown timer from the `KitchenGameManager` and triggers animations for each countdown number change. Additionally, it plays a countdown sound effect when the countdown number changes.
 
 #### Fields
-- `public TextMeshProUGUI countdownText`: TextMeshProUGUI component representing the countdown text.
+- `private const string NUMBER_POPUP = "NumberPopup"`: Constant string representing the trigger name for the number popup animation in the animator.
+- `[SerializeField] private TextMeshProUGUI countdownText`: Reference to the TextMeshProUGUI component displaying the countdown text.
+- `private Animator animator`: Reference to the Animator component for triggering countdown animations.
+- `private int previousCountDownNumeber`: Variable to store the previous countdown number.
 
 #### Methods
-- `void Start()`: Called before the first frame update. Subscribes to the `OnStateChanged` event triggered by the `KitchenGameManager`.
-- `void Update()`: Called once per frame. Updates the countdown text with the remaining time until the game starts.
-- `void KitchenGameManager_OnStateChanged(object sender, EventArgs e)`: Event handler for the `OnStateChanged` event triggered by the `KitchenGameManager`.
-- `void Show()`: Displays the countdown UI.
-- `void Hide()`: Hides the countdown UI.
+- `private void Awake()`: Unity lifecycle method called when the script instance is being loaded. Initializes the animator reference.
+- `private void Start()`: Unity lifecycle method called before the first frame update. Subscribes to game state change events and hides the countdown UI initially.
+- `private void Update()`: Unity lifecycle method called once per frame. Updates the countdown text based on the countdown timer from `KitchenGameManager` and triggers animations for countdown number changes.
+- `private void KitchenGameManager_OnStateChanged(object sender, EventArgs e)`: Event handler method called when the game state changes. Shows or hides the countdown UI based on the game state.
+- `private void Show()`: Shows the countdown UI by setting its GameObject active.
+- `private void Hide()`: Hides the countdown UI by setting its GameObject inactive.
 
 #### Usage
-This script is attached to a GameObject in the scene representing the countdown UI. It requires a TextMeshProUGUI component to display the countdown text. During the countdown to the start of the game, the `Update` method continuously updates the countdown text based on the remaining time obtained from the `KitchenGameManager`. The countdown UI is shown or hidden based on the state of the countdown to start as indicated by the `KitchenGameManager`.
+This script is attached to a GameObject representing the countdown UI in the game scene. It dynamically updates the countdown text based on the countdown timer provided by `KitchenGameManager` and triggers animations for countdown number changes. The countdown UI is displayed at the start of the game and hidden when the game starts playing.
 
 #### Notes
-- The `Start` method subscribes to the `OnStateChanged` event triggered by the `KitchenGameManager`. When the game's state changes to the countdown to start active, the countdown UI is shown.
-- The `Update` method retrieves the remaining time until the game starts from the `KitchenGameManager` and updates the countdown text accordingly.
-- The `KitchenGameManager_OnStateChanged` method toggles the visibility of the countdown UI based on the state of the countdown to start as indicated by the `KitchenGameManager`.
+- The countdown UI enhances the game's visual presentation by providing players with a clear indication of when the game will start.
+- It utilizes animations and sound effects to create an engaging countdown experience for players.
+
 
 #### Code
 ```
@@ -1930,7 +1985,15 @@ using UnityEngine;
 
 public class GameStartCountdownUI : MonoBehaviour
 {
+    private const string NUMBER_POPUP = "NumberPopup";
     [SerializeField] private TextMeshProUGUI countdownText;
+    private Animator animator;
+    private int previousCountDownNumeber;
+
+    private void Awake()
+    {
+        animator = GetComponent<Animator>();
+    }
 
     private void Start()
     {
@@ -1941,7 +2004,15 @@ public class GameStartCountdownUI : MonoBehaviour
 
     private void Update()
     {
-        countdownText.text = Mathf.Ceil(KitchenGameManager.Instance.GetCountdownToStatTimer()).ToString();
+        int countDownNumber = Mathf.CeilToInt(KitchenGameManager.Instance.GetCountdownToStatTimer());
+        countdownText.text = countDownNumber.ToString();
+
+        if (previousCountDownNumeber != countDownNumber)
+        {
+            previousCountDownNumeber = countDownNumber;
+            animator.SetTrigger(NUMBER_POPUP);
+            SoundManager.Instance.PlayCountdownSound();
+        }
     }
 
     private void KitchenGameManager_OnStateChanged(object sender, EventArgs e)
@@ -2026,42 +2097,54 @@ public class MainMenuUI : MonoBehaviour
 ### [8. OptionsUI.cs](README.md#1-scripts)
 
 #### Description
-This script manages the options user interface (UI) functionality. It allows the player to adjust sound effects and music volume settings. Additionally, it provides a button to close the options menu.
-
-#### Inherits from
-- `MonoBehaviour`
-
-#### Properties
-- `public static OptionsUI Instance`: Singleton instance of the OptionsUI class.
+This script manages the options menu UI, allowing players to adjust game settings such as sound effects volume, music volume, and key bindings. It provides functionality to rebind key bindings interactively and updates the UI to reflect changes in settings and key bindings.
 
 #### Fields
-- `public Button soundEffectsButton`: Button component representing the sound effects volume adjustment button.
-- `public Button musicButton`: Button component representing the music volume adjustment button.
-- `public Button closeButton`: Button component representing the close button for the options menu.
-- `public TextMeshProUGUI soundEffectsText`: TextMeshProUGUI component displaying the current sound effects volume.
-- `public TextMeshProUGUI musicText`: TextMeshProUGUI component displaying the current music volume.
+- `public static OptionsUI Instance { get; private set; }`: Static reference to the OptionsUI instance.
+- `[SerializeField] private Button soundEffectsButton`: Reference to the button for adjusting sound effects volume.
+- `[SerializeField] private Button musicButton`: Reference to the button for adjusting music volume.
+- `[SerializeField] private Button closeButton`: Reference to the button for closing the options menu.
+- `[SerializeField] private TextMeshProUGUI soundEffectsText`: Reference to the TextMeshProUGUI for displaying sound effects volume.
+- `[SerializeField] private TextMeshProUGUI musicText`: Reference to the TextMeshProUGUI for displaying music volume.
+- `[SerializeField] private Button moveUpButton`: Reference to the button for rebinding the move up key.
+- `[SerializeField] private Button moveDownButton`: Reference to the button for rebinding the move down key.
+- `[SerializeField] private Button moveLeftButton`: Reference to the button for rebinding the move left key.
+- `[SerializeField] private Button moveRightButton`: Reference to the button for rebinding the move right key.
+- `[SerializeField] private Button interactButton`: Reference to the button for rebinding the interact key.
+- `[SerializeField] private Button interactAlternateButton`: Reference to the button for rebinding the alternate interact key.
+- `[SerializeField] private TextMeshProUGUI moveUpText`: Reference to the TextMeshProUGUI for displaying the move up key binding.
+- `[SerializeField] private TextMeshProUGUI moveDownText`: Reference to the TextMeshProUGUI for displaying the move down key binding.
+- `[SerializeField] private TextMeshProUGUI moveLeftText`: Reference to the TextMeshProUGUI for displaying the move left key binding.
+- `[SerializeField] private TextMeshProUGUI moveRightText`: Reference to the TextMeshProUGUI for displaying the move right key binding.
+- `[SerializeField] private TextMeshProUGUI interactText`: Reference to the TextMeshProUGUI for displaying the interact key binding.
+- `[SerializeField] private TextMeshProUGUI interactAlternateText`: Reference to the TextMeshProUGUI for displaying the alternate interact key binding.
+- `[SerializeField] private Transform pressToRebindKeyTransform`: Reference to the transform for showing the press to rebind key UI.
 
 #### Methods
-- `void Awake()`: Called when the script instance is being loaded. Initializes the singleton instance, subscribes to button click events, and updates the visual representation of sound effects and music volume settings.
-- `void Start()`: Called before the first frame update. Subscribes to the game unpaused event and initializes the visual representation of volume settings. Hides the options menu.
-- `void KitchenGameManager_OnGameUnpaused(object sender, EventArgs e)`: Event handler for the game unpaused event. Hides the options menu.
-- `void UpdateVisual()`: Updates the visual representation of sound effects and music volume settings.
-- `public void Show()`: Displays the options menu.
-- `private void Hide()`: Hides the options menu.
+- `private void Awake()`: Unity lifecycle method called when the script instance is being loaded. Initializes the static reference to the OptionsUI instance.
+- `private void Start()`: Unity lifecycle method called before the first frame update. Subscribes to game unpaused event and updates the visual elements of the options menu.
+- `private void KitchenGameManager_OnGameUnpaused(object sender, EventArgs e)`: Event handler method called when the game is unpaused. Hides the options menu.
+- `private void UpdateVisual()`: Updates the visual elements of the options menu to reflect changes in settings and key bindings.
+- `public void Show()`: Shows the options menu by setting its GameObject active.
+- `private void Hide()`: Hides the options menu by setting its GameObject inactive.
+- `private void ShowPressToRebindKey()`: Shows the press to rebind key UI by setting its GameObject active.
+- `private void HidePressToRebindKey()`: Hides the press to rebind key UI by setting its GameObject inactive.
+- `private void RebindBinding(GameInput.Binding binding)`: Initiates the process of rebinding a key binding. Shows the press to rebind key UI and calls the `RebindBinding` method of the `GameInput` class to rebind the specified binding.
 
 #### Usage
-This script is attached to a GameObject representing the options menu in the game. It requires Button and TextMeshProUGUI components for sound effects, music, and close buttons, as well as text displays for volume settings. The `Awake` method initializes the singleton instance and subscribes to button click events for adjusting volume settings. The `Start` method initializes the visual representation of volume settings and subscribes to the game unpaused event. The `Show` method displays the options menu, and the `Hide` method hides it.
+This script is attached to a GameObject representing the options menu in the game scene. It provides players with options to adjust sound effects volume, music volume, and key bindings. Players can interactively rebind key bindings by clicking on the respective buttons and pressing the desired key. The options menu can be opened and closed during gameplay.
 
 #### Notes
-- The `Awake` method sets up the singleton pattern to ensure that only one instance of the OptionsUI class exists throughout the game.
-- Button click event listeners are used to adjust sound effects and music volume settings. These methods also update the visual representation of volume settings.
-- The `KitchenGameManager_OnGameUnpaused` method hides the options menu when the game is unpaused.
+- The OptionsUI enhances the player experience by providing customizable settings and key bindings.
+- It includes functionality for interactive key binding reassignment, improving accessibility and customization options for players.
+
 
 #### Code
 ```
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -2076,6 +2159,26 @@ public class OptionsUI : MonoBehaviour
 
     [SerializeField] private TextMeshProUGUI soundEffectsText;
     [SerializeField] private TextMeshProUGUI musicText;
+
+    [SerializeField] private Button moveUpButton;
+    [SerializeField] private Button moveDownButton;
+    [SerializeField] private Button moveLeftButton;
+    [SerializeField] private Button moveRightButton;
+    [SerializeField] private Button interactButton;
+    [SerializeField] private Button interactAlternateButton;
+    [SerializeField] private TextMeshProUGUI moveUpText;
+    [SerializeField] private TextMeshProUGUI moveDownText;
+    [SerializeField] private TextMeshProUGUI moveLeftText;
+    [SerializeField] private TextMeshProUGUI moveRightText;
+    [SerializeField] private TextMeshProUGUI interactText;
+    [SerializeField] private TextMeshProUGUI interactAlternateText;
+    [SerializeField] private Transform pressToRebindKeyTransform;
+
+    //[SerializeField] private Button gamepadInteractButton;
+    //[SerializeField] private Button gamepadInteractAlternateButton;
+
+    //[SerializeField] private TextMeshProUGUI gamepadinteractText;
+    //[SerializeField] private TextMeshProUGUI gamepadInteractAlternateText;
 
     private void Awake()
     {
@@ -2094,7 +2197,43 @@ public class OptionsUI : MonoBehaviour
         closeButton.onClick.AddListener(() =>
         {
             Hide();
+            GamePauseUI.Instance.Show();
         });
+
+        moveUpButton.onClick.AddListener(() => 
+        {
+            RebindBinding(GameInput.Binding.Move_Up);
+        });
+        moveDownButton.onClick.AddListener(() => 
+        {
+            RebindBinding(GameInput.Binding.Move_Down);
+        });
+        moveLeftButton.onClick.AddListener(() => 
+        {
+            RebindBinding(GameInput.Binding.Move_Left);
+        });
+        moveRightButton.onClick.AddListener(() => 
+        {
+            RebindBinding(GameInput.Binding.Move_Right);
+        });
+        interactButton.onClick.AddListener(() => 
+        {
+            RebindBinding(GameInput.Binding.Interact);
+        });
+        interactAlternateButton.onClick.AddListener(() => 
+        {
+            RebindBinding(GameInput.Binding.InteractAlternate);
+        });
+        /*
+        gamepadInteractButton.onClick.AddListener(() => 
+        {
+            RebindBinding(GameInput.Binding.Gamepad_Interact);
+        });
+        gamepadInteractAlternateButton.onClick.AddListener(() => 
+        {
+            RebindBinding(GameInput.Binding.Gamepad_InteractAlternate);
+        });
+        */
     }
 
     private void Start()
@@ -2102,6 +2241,8 @@ public class OptionsUI : MonoBehaviour
         KitchenGameManager.Instance.OnGameUnpaused += KitchenGameManager_OnGameUnpaused;
 
         UpdateVisual();
+
+        HidePressToRebindKey();
 
         Hide();
     }
@@ -2116,16 +2257,47 @@ public class OptionsUI : MonoBehaviour
         soundEffectsText.text = "Sound Effects: " + Math.Round(SoundManager.Instance.GetVolume() * 10f);
         musicText.text = "Music: " + Math.Round(MusicManager.Instance.GetVolume() * 10f);
 
+        moveUpText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Move_Up);
+        moveDownText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Move_Down);
+        moveLeftText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Move_Left);
+        moveRightText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Move_Right);
+        interactText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Interact);
+        interactAlternateText.text = GameInput.Instance.GetBindingText(GameInput.Binding.InteractAlternate);
+        //gamepadInteractText = GameInput.Instance.GetBindingText(GameInput.Binding.Gamepad_Interact);
+        //gamepadInteractAlternateText = GameInput.Instance.GetBindingText(GameInput.Binding.Gamepad_InteractAlternate);
     }
 
     public void Show()
     {
         gameObject.SetActive(true);
+
+        //Controller
+        //soundEffectsButton.Select();
     }
 
     private void Hide()
     {
         gameObject.SetActive(false);
+    }
+        
+    private void ShowPressToRebindKey()
+    {
+        pressToRebindKeyTransform.gameObject.SetActive(true);
+    }
+
+    private void HidePressToRebindKey()
+    {
+        pressToRebindKeyTransform.gameObject.SetActive(false);
+    }
+
+    private void RebindBinding(GameInput.Binding binding)
+    {
+        ShowPressToRebindKey();
+        GameInput.Instance.RebindBinding(binding, () => 
+        {
+            HidePressToRebindKey();
+            UpdateVisual();
+        });
     }
 }
 ```
@@ -2319,3 +2491,166 @@ public class ProgressBarUI : MonoBehaviour
 ```
 
 ---
+### [12. StoveBurnWarningUI.cs](README.md#1-scripts)
+
+#### Description
+This script manages the warning UI for the stove counter, displaying a warning when the progress of frying a plate approaches the burning threshold. It listens to the progress changed event of the stove counter and shows or hides the warning UI based on the progress value.
+
+#### Fields
+- `[SerializeField] private StoveCounter stoveCounter`: Reference to the stove counter component.
+
+#### Methods
+- `private void Start()`: Unity lifecycle method called before the first frame update. Subscribes to the progress changed event of the stove counter and hides the warning UI.
+- `private void StoveCounter_OnProgressChanged(object sender, IHasProgress.OnProgressChangedEventArgs e)`: Event handler method called when the progress of the stove counter changes. Determines whether to show or hide the warning UI based on the progress value.
+- `private void Show()`: Shows the warning UI by setting its GameObject active.
+- `private void Hide()`: Hides the warning UI by setting its GameObject inactive.
+
+#### Usage
+This script is attached to a GameObject representing the warning UI for the stove counter in the game scene. It dynamically displays a warning when the progress of frying a plate approaches the burning threshold, providing feedback to the player about the state of the cooking process.
+
+#### Notes
+- The StoveBurnWarningUI enhances player awareness by visually indicating when a plate is close to burning during the cooking process.
+- It complements the stove counter functionality by providing timely warnings to prevent burning and maintain gameplay balance.
+
+#### Code
+```
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class StoveBurnWarningUI : MonoBehaviour
+{
+    [SerializeField] private StoveCounter stoveCounter;
+
+    private void Start()
+    {
+        stoveCounter.OnProgressChanged += StoveCounter_OnProgressChanged;
+        Hide();
+    }
+
+    private void StoveCounter_OnProgressChanged(object sender, IHasProgress.OnProgressChangedEventArgs e)
+    {
+        float burnShowProgressAmount = .5f;
+        bool show = stoveCounter.IsFried() && e.progressNormalized >= burnShowProgressAmount;
+
+        if (show)
+        {
+            Show();
+        }
+        else
+        {
+            Hide();
+        }
+    }
+
+    private void Show()
+    {
+        gameObject.SetActive(true);
+    }
+
+    private void Hide()
+    {
+        gameObject.SetActive(false);
+    }
+}
+```
+
+---
+### [13. TutorialUI.cs](README.md#1-scripts)
+
+#### Description
+This script manages the tutorial UI, displaying key bindings for player actions to assist players in learning the game controls. It listens to events related to game state changes and binding rebinds and updates the UI accordingly.
+
+#### Fields
+- `[SerializeField] private TextMeshProUGUI moveUpKeyText`: Text element displaying the key binding for moving up.
+- `[SerializeField] private TextMeshProUGUI moveDownKeyText`: Text element displaying the key binding for moving down.
+- `[SerializeField] private TextMeshProUGUI moveLeftKeyText`: Text element displaying the key binding for moving left.
+- `[SerializeField] private TextMeshProUGUI moveRightKeyText`: Text element displaying the key binding for moving right.
+- `[SerializeField] private TextMeshProUGUI interactKeyText`: Text element displaying the key binding for interacting.
+- `[SerializeField] private TextMeshProUGUI interactAlternateKeyText`: Text element displaying the key binding for alternate interaction.
+- `[SerializeField] private TextMeshProUGUI gamepadInteactKeyText`: Text element displaying the key binding for gamepad interaction.
+- `[SerializeField] private TextMeshProUGUI gamepadInteractAlternateKeyText`: Text element displaying the key binding for alternate gamepad interaction.
+
+#### Methods
+- `private void Start()`: Unity lifecycle method called before the first frame update. Subscribes to events related to binding rebinds and game state changes, updates the UI, and shows the tutorial UI.
+- `private void GameInput_OnBindingRebind(object sender, System.EventArgs e)`: Event handler method called when a binding is rebound. Updates the visual representation of the key bindings.
+- `private void KitchenGameManager_OnStateChanged(object sender, System.EventArgs e)`: Event handler method called when the game state changes. Hides the tutorial UI when the countdown to start is active.
+- `private void UpdateVisual()`: Updates the visual representation of the key bindings based on the current bindings.
+- `private void Show()`: Shows the tutorial UI by setting its GameObject active.
+- `private void Hide()`: Hides the tutorial UI by setting its GameObject inactive.
+
+#### Usage
+This script is attached to a GameObject representing the tutorial UI in the game scene. It dynamically displays key bindings for player actions to help players learn the game controls.
+
+#### Notes
+- The TutorialUI provides a helpful guide for players to learn and remember the game controls, improving the overall user experience.
+- It updates in real-time to reflect any changes made to the key bindings, ensuring accuracy and relevance to the current configuration.
+
+#### Code
+```
+using System.Collections;
+using System.Collections.Generic;
+using TMPro;
+using UnityEngine;
+
+public class TutorialUI : MonoBehaviour
+{
+    [SerializeField] private TextMeshProUGUI moveUpKeyText;
+    [SerializeField] private TextMeshProUGUI moveDownKeyText;
+    [SerializeField] private TextMeshProUGUI moveLeftKeyText;
+    [SerializeField] private TextMeshProUGUI moveRightKeyText;
+    [SerializeField] private TextMeshProUGUI interactKeyText;
+    [SerializeField] private TextMeshProUGUI interactAlternateKeyText;
+    [SerializeField] private TextMeshProUGUI gamepadInteactKeyText;
+    [SerializeField] private TextMeshProUGUI gamepadInteractAlternateKeyText;
+
+    private void Start()
+    {
+        GameInput.Instance.OnBindingRebind += GameInput_OnBindingRebind;
+        KitchenGameManager.Instance.OnStateChanged += KitchenGameManager_OnStateChanged;
+        UpdateVisual();
+        Show();
+    }
+
+    private void GameInput_OnBindingRebind(object sender, System.EventArgs e)
+    {
+        UpdateVisual();
+    }
+
+    private void KitchenGameManager_OnStateChanged(object sender, System.EventArgs e)
+    {
+        if (KitchenGameManager.Instance.IsCountdownToStartActive())
+        {
+            Hide();
+        }
+    }
+
+    private void UpdateVisual()
+    {
+        moveUpKeyText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Move_Up);
+        moveDownKeyText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Move_Down);
+        moveLeftKeyText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Move_Left);
+        moveRightKeyText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Move_Right);
+        interactKeyText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Interact);
+        interactAlternateKeyText.text = GameInput.Instance.GetBindingText(GameInput.Binding.InteractAlternate);
+        gamepadInteactKeyText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Gamepad_Interact);
+        gamepadInteractAlternateKeyText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Gamepad_InteractAlternate);
+
+    }
+
+    private void Show()
+    {
+        gameObject.SetActive(true);
+    }
+
+    private void Hide()
+    {
+        gameObject.SetActive(false);
+    }
+    
+
+}
+```
+
+
+
