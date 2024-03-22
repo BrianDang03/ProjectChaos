@@ -56,6 +56,9 @@ public class GamePauseUI : MonoBehaviour
     public void Show()
     {
         gameObject.SetActive(true);
+
+        //Controller
+        //resumeButton.Select();
     }
 
     private void Hide()

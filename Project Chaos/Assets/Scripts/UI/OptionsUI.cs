@@ -31,6 +31,12 @@ public class OptionsUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI interactAlternateText;
     [SerializeField] private Transform pressToRebindKeyTransform;
 
+    //[SerializeField] private Button gamepadInteractButton;
+    //[SerializeField] private Button gamepadInteractAlternateButton;
+
+    //[SerializeField] private TextMeshProUGUI gamepadinteractText;
+    //[SerializeField] private TextMeshProUGUI gamepadInteractAlternateText;
+
     private void Awake()
     {
         Instance = this;
@@ -75,6 +81,16 @@ public class OptionsUI : MonoBehaviour
         {
             RebindBinding(GameInput.Binding.InteractAlternate);
         });
+        /*
+        gamepadInteractButton.onClick.AddListener(() => 
+        {
+            RebindBinding(GameInput.Binding.Gamepad_Interact);
+        });
+        gamepadInteractAlternateButton.onClick.AddListener(() => 
+        {
+            RebindBinding(GameInput.Binding.Gamepad_InteractAlternate);
+        });
+        */
     }
 
     private void Start()
@@ -104,11 +120,16 @@ public class OptionsUI : MonoBehaviour
         moveRightText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Move_Right);
         interactText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Interact);
         interactAlternateText.text = GameInput.Instance.GetBindingText(GameInput.Binding.InteractAlternate);
+        //gamepadInteractText = GameInput.Instance.GetBindingText(GameInput.Binding.Gamepad_Interact);
+        //gamepadInteractAlternateText = GameInput.Instance.GetBindingText(GameInput.Binding.Gamepad_InteractAlternate);
     }
 
     public void Show()
     {
         gameObject.SetActive(true);
+
+        //Controller
+        //soundEffectsButton.Select();
     }
 
     private void Hide()
