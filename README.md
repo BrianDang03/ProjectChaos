@@ -2147,7 +2147,258 @@ public class KitchenGameManager : MonoBehaviour
 ```
 
 ---
+### [3. MusicManager.cs](README.md#1-scripts)
 
+#### Description
+The `MusicManager` class manages the music volume in the game. It allows changing the volume level and saves the user's preference using PlayerPrefs.
+
+#### Fields
+- `public static MusicManager Instance`: Singleton instance of the `MusicManager`.
+- `private const string PLAYER_PREFS_MUSIC_VOLUME = "MusicVolume"`: Key for storing and retrieving the music volume from PlayerPrefs.
+- `private AudioSource audioSource`: Reference to the AudioSource component attached to the GameObject.
+- `private float volume = .5f`: Current volume level, initialized to 0.5f.
+
+#### Methods
+- `private void Awake()`: Initializes the singleton instance and retrieves the saved music volume from PlayerPrefs.
+- `public void ChangeVolume()`: Increases the volume level by 0.1f and wraps around to 0f if it exceeds 1f. Updates the audio source volume and saves the new volume to PlayerPrefs.
+- `public float GetVolume()`: Returns the current volume level.
+
+#### Usage
+This class can be attached to a GameObject in the scene to manage music volume. It provides methods to adjust the volume level dynamically during gameplay.
+
+#### Notes
+- Ensure that an AudioSource component is attached to the same GameObject as this script for music playback.
+- The music volume level is persisted across game sessions using PlayerPrefs, allowing the user's preference to be remembered. Adjustments to the volume level can be made in runtime and are reflected immediately.
+
+#### Code
+```
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class MusicManager : MonoBehaviour
+{
+
+    private const string PLAYER_PREFS_MUSIC_VOLUME = "MusicVolume";
+
+    public static MusicManager Instance { get; private set; }
+
+    private AudioSource audioSource;
+    private float volume = .5f;
+
+    private void Awake()
+    {
+        Instance = this;
+        audioSource = GetComponent<AudioSource>();
+
+        volume = PlayerPrefs.GetFloat(PLAYER_PREFS_MUSIC_VOLUME, .3f);
+        audioSource.volume = volume;
+    }
+
+    public void ChangeVolume()
+    {
+        volume += .1f;
+
+        if (volume > 1f)
+        {
+            volume = 0f;
+        }
+        audioSource.volume = volume;
+
+        PlayerPrefs.SetFloat(PLAYER_PREFS_MUSIC_VOLUME, volume);
+        PlayerPrefs.Save();
+    }
+
+    public float GetVolume()
+    {
+        return volume;
+    }
+}
+```
+
+---
+### [4. ResetStaticDataManager.cs](README.md#1-scripts)
+
+#### Description
+The `ResetStaticDataManager` class is responsible for resetting the static data of various counters in the game when the GameObject it is attached to is awakened.
+
+#### Methods
+- `private void Awake()`: Resets the static data of the CuttingCounter, BaseCounter, and TrashCounter by calling their respective ResetStaticData methods.
+
+#### Usage
+Attach this script to a GameObject in the scene. When the GameObject is awakened, it will reset the static data of the specified counters.
+
+#### Notes
+- This script assumes that the counters (CuttingCounter, BaseCounter, TrashCounter) have static ResetStaticData methods implemented to reset their static data.
+- Ensure that this script is attached to a GameObject that is present in the scene at all times and will be awakened when required.
+
+#### Code
+```
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class ResetStaticDataManager : MonoBehaviour
+{
+    private void Awake()
+    {
+        CuttingCounter.ResetStaticData();
+        BaseCounter.ResetStaticData();
+        TrashCounter.ResetStaticData();
+    }
+}
+```
+
+---
+### [5. SoundManager.cs](README.md#1-scripts)
+
+#### Description
+The `SoundManager` class manages sound effects in the game. It handles playing different audio clips for various events such as recipe success, recipe failure, chopping, object pickup, object placement, object trashing, and more.
+
+#### Fields
+- `public static SoundManager Instance`: Singleton instance of the `SoundManager`.
+- `[SerializeField] private AudioClipRefsSO audioClipRefsSO`: ScriptableObject containing references to audio clips.
+- `private const string PLAYER_PREFS_SOUND_EFFECTS_VOLUME = "SoundEffectsVolume"`: Key for storing sound effects volume in player preferences.
+- `private float volume = 0.5f`: Current volume level for sound effects.
+
+#### Methods
+- `private void Awake()`: Initializes the singleton instance and retrieves the sound effects volume from player preferences.
+- `private void Start()`: Subscribes to various events such as recipe success, recipe failure, chopping, object pickup, object placement, and object trashing.
+- `private void DeliveryManager_OnRecipeSuccess(object sender, EventArgs e)`: Plays a sound effect when a recipe is successfully delivered.
+- `private void DeliveryManager_OnRecipeFailed(object sender, EventArgs e)`: Plays a sound effect when a recipe delivery fails.
+- `private void CuttingCounter_OnAnyCut(object sender, EventArgs e)`: Plays a sound effect when cutting occurs.
+- `private void Player_OnPickedSomething(object sender, EventArgs e)`: Plays a sound effect when the player picks up an object.
+- `private void BaseCounter_OnAnyObjectPlacedHere(object sender, EventArgs e)`: Plays a sound effect when an object is placed on a base counter.
+- `private void TrashCounter_OnAnyObjectTrashed(object sender, EventArgs e)`: Plays a sound effect when an object is trashed.
+- `private void PlaySound(AudioClip audioClip, Vector3 position, float volume = 1f)`: Plays a single audio clip at a specified position with a specified volume.
+- `private void PlaySound(AudioClip[] audioClipArray, Vector3 position, float volumeMultiplier = 1f)`: Plays a random audio clip from an array at a specified position with a specified volume multiplier.
+- `public void PlayFooststepsSound(Vector3 position, float volume)`: Plays a footstep sound at a specified position with a specified volume.
+- `public void PlayCountdownSound()`: Plays a countdown sound effect.
+- `public void PlayWarningSound(Vector3 position)`: Plays a warning sound effect at a specified position.
+- `public void ChangeVolume()`: Increases the volume of sound effects and saves the new volume to player preferences.
+- `public float GetVolume()`: Returns the current volume level for sound effects.
+
+#### Usage
+Attach this script to a GameObject in the scene to manage sound effects. Assign appropriate audio clips to the `audioClipRefsSO` field in the inspector.
+
+#### Notes
+- Ensure that audio clips are properly assigned to the `audioClipRefsSO` ScriptableObject to ensure proper functionality.
+- Adjust the volume levels of individual sound effects by adjusting the volume property in the Unity Editor or by calling the `ChangeVolume` method during runtime.
+
+#### Code
+```
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using Unity.VisualScripting.InputSystem;
+using UnityEngine;
+
+public class SoundManager : MonoBehaviour
+{
+    private const string PLAYER_PREFS_SOUND_EFFECTS_VOLUME = "SoundEffectsVolume";
+
+    public static SoundManager Instance { get; private set; }
+    [SerializeField] private AudioClipRefsSO audioClipRefsSO;
+
+    private float volume = 0.5f;
+
+    private void Awake()
+    {
+        Instance = this;
+
+        volume = PlayerPrefs.GetFloat(PLAYER_PREFS_SOUND_EFFECTS_VOLUME, 1f);
+    }
+
+    private void Start()
+    {
+        DeliveryManager.Instance.OnRecipeSuccess += DeliveryManager_OnRecipeSuccess;
+        DeliveryManager.Instance.OnRecipeFailed += DeliveryManager_OnRecipeFailed;
+        CuttingCounter.OnAnyCut += CuttingCounter_OnAnyCut;
+        Player.Instance.OnPickedSomehing += Player_OnPickedSomething;
+        BaseCounter.OnAnyObjectPlacedHere += BaseCounter_OnAnyObjectPlacedHere;
+        TrashCounter.OnAnyObjectTrashed += TrashCounter_OnAnyObjectTrashed;
+    }
+
+    private void DeliveryManager_OnRecipeSuccess(object sender, EventArgs e)
+    {
+        DeliveryCounter deliveryCounter = DeliveryCounter.Instance;
+        PlaySound(audioClipRefsSO.deliverySucess, deliveryCounter.transform.position);
+    }
+
+    private void DeliveryManager_OnRecipeFailed(object sender, EventArgs e)
+    {
+        DeliveryCounter deliveryCounter = DeliveryCounter.Instance;
+        PlaySound(audioClipRefsSO.deliveryFail, deliveryCounter.transform.position);
+    }
+
+    private void CuttingCounter_OnAnyCut(object sender, EventArgs e)
+    {
+        CuttingCounter cuttingCounter = sender as CuttingCounter;
+        PlaySound(audioClipRefsSO.chop, cuttingCounter.transform.position);
+    }
+
+    private void Player_OnPickedSomething(object sender, EventArgs e)
+    {
+        Player player = Player.Instance;
+        PlaySound(audioClipRefsSO.objectPickup, player.transform.position);
+    }
+
+    private void BaseCounter_OnAnyObjectPlacedHere(object sender, EventArgs e)
+    {
+        BaseCounter baseCounter = sender as BaseCounter;
+        PlaySound(audioClipRefsSO.objectDrop, baseCounter.transform.position);
+    }
+
+    private void TrashCounter_OnAnyObjectTrashed(object sender, EventArgs e)
+    {
+        TrashCounter trashCounter = sender as TrashCounter;
+        PlaySound(audioClipRefsSO.trash, trashCounter.transform.position);
+    }
+
+    private void PlaySound(AudioClip audioClip, Vector3 position, float volume = 1f)
+    {
+        AudioSource.PlayClipAtPoint(audioClip, position, volume);
+    }
+
+    private void PlaySound(AudioClip[] audioClipArray, Vector3 position, float volumeMultiplier = 1f)
+    {
+        PlaySound(audioClipArray[UnityEngine.Random.Range(0, audioClipArray.Length)], position, volumeMultiplier * volume);
+    }
+
+    public void PlayFooststepsSound(Vector3 position, float volume)
+    {
+        PlaySound(audioClipRefsSO.footstep, position, volume);
+    }
+
+    public void PlayCountdownSound()
+    {
+        PlaySound(audioClipRefsSO.warning, Vector3.zero);
+    }
+
+    public void PlayWarningSound(Vector3 position)
+    {
+        PlaySound(audioClipRefsSO.warning, position);
+    }
+
+    public void ChangeVolume()
+    {
+        volume += .1f;
+
+        if (volume > 1f)
+        {
+            volume = 0f;
+        }
+
+        PlayerPrefs.SetFloat(PLAYER_PREFS_SOUND_EFFECTS_VOLUME, volume);
+        PlayerPrefs.Save();
+    }
+
+    public float GetVolume()
+    {
+        return volume;
+    }
+}
+```
 
 ---
 ## ScriptableObjects
