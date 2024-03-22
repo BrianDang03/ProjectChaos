@@ -23,7 +23,9 @@
       - [1. GameInput.cs](README.md#1-gameinputcs)
    - Interfaces
      - [1. IHasProgress.cs](README.md#1-ihasprogresscs)
-     - [2. IKitchenObjectParent.cs](README.md#2-ikitchenobjectparentcs) 
+     - [2. IKitchenObjectParent.cs](README.md#2-ikitchenobjectparentcs)
+   - KitchenObject
+      - [1. KitchenObject.cs](README.md#1-kitchenobjectcs)
    - ScriptableObjects
      - [1. AudioClipRefsSO.cs](README.md#1-audiocliprefssocs)
      - [2. BurningRecipeSO.cs](README.md#2-burningrecipesocs)
@@ -1632,6 +1634,103 @@ public interface IKitchenObjectParent
     public void ClearKitchenObject();
 
     public bool HasKitchenObject();
+}
+```
+
+---
+## KitchenObject
+### [1. KitchenObject.cs](README.md#1-scripts)
+
+#### Description
+The `KitchenObject` class represents an object in the kitchen environment. It provides functionality for setting a parent object, destroying itself, and spawning kitchen objects.
+
+#### Fields
+- `[SerializeField] private KitchenObjectSO kitchenObjectSO`: Serialized field representing the scriptable object for the kitchen object.
+
+#### Methods
+- `public KitchenObjectSO GetKitchenObjectSO()`: Retrieves the scriptable object associated with the kitchen object.
+- `public void SetKitchenObjectParent(IKitchenObjectParent kitchenObjectParent)`: Sets the specified object as the parent of the kitchen object, positioning it accordingly.
+- `public IKitchenObjectParent GetKitchenObjectParent()`: Retrieves the parent object associated with the kitchen object.
+- `public void DestroySelf()`: Destroys the kitchen object and clears its association with the parent object.
+- `public bool TryGetPlate(out PlateKitchenObject plateKitchenObject)`: Attempts to retrieve a plate kitchen object from the kitchen object.
+- `public static KitchenObject SpawnKitchenObject(KitchenObjectSO kitchenObjectSO, IKitchenObjectParent kitchenObjectParent)`: Instantiates a new kitchen object based on the provided scriptable object and sets its parent.
+
+#### Usage
+The `KitchenObject` class serves as the base class for various objects within the kitchen environment. It provides essential functionality for interacting with and managing kitchen objects, such as setting parent objects, destroying objects, and spawning new kitchen objects.
+
+#### Notes
+- The `KitchenObject` class is designed to be extended by specific kitchen objects, such as plates, ingredients, or utensils.
+- It facilitates the management of kitchen objects within the game environment, including their instantiation, positioning, and destruction.
+
+#### Code
+```
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class KitchenObject : MonoBehaviour
+{
+    [SerializeField] private KitchenObjectSO kitchenObjectSO;
+
+    private IKitchenObjectParent kitchenObjectParent;
+
+    public KitchenObjectSO GetKitchenObjectSO()
+    {
+        return kitchenObjectSO;
+    }
+
+    public void SetKitchenObjectParent(IKitchenObjectParent kitchenObjectParent)
+    {
+        if (this.kitchenObjectParent != null)
+        {
+            this.kitchenObjectParent.ClearKitchenObject();
+        }
+
+        this.kitchenObjectParent = kitchenObjectParent;
+        if (kitchenObjectParent.HasKitchenObject())
+        {
+            Debug.LogError("IKitchenObjectParent already has a KitchenObject");
+        }
+        kitchenObjectParent.SetKitchenObject(this);
+
+        transform.parent = kitchenObjectParent.GetKitchenObjectFollowTransform();
+        transform.localPosition = Vector3.zero;
+    }
+
+    public IKitchenObjectParent GetKitchenObjectParent()
+    {
+        return kitchenObjectParent;
+    }
+
+    public void DestorySelf()
+    {
+        kitchenObjectParent.ClearKitchenObject();
+        Destroy(gameObject);
+    }
+
+    public bool TryGetPlate(out PlateKitchenObject plateKitchenObject)
+    {
+        if (this is PlateKitchenObject)
+        {
+            plateKitchenObject = this as PlateKitchenObject;
+            return true;
+        }
+        else
+        {
+            plateKitchenObject = null;
+            return false;
+        }
+    }
+
+    public static KitchenObject SpawnKitchenObject(KitchenObjectSO kitchenObjectSO, IKitchenObjectParent kitchenObjectParent)
+    {
+        Transform kitchenObjectTransform = Instantiate(kitchenObjectSO.prefab);
+        KitchenObject kitchenObject = kitchenObjectTransform.GetComponent<KitchenObject>();
+
+        kitchenObject.SetKitchenObjectParent(kitchenObjectParent);
+
+        return kitchenObject;
+    }
 }
 ```
 
