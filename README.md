@@ -20,7 +20,10 @@
        - [7b. StoveCounterSound.cs](README.md#7b-stovecountersoundcs)
      - [8. TrashCounter.cs](README.md#8-trashcountercs)
    - GameInput
-      - [1. GameInput.cs](README.md#1-gameinputcs)  
+      - [1. GameInput.cs](README.md#1-gameinputcs)
+   - Interfaces
+     - [1. IHasProgress.cs](README.md#1-ihasprogresscs)
+     - [2. IKitchenObjectParent.cs](README.md#2-ikitchenobjectparentcs) 
    - ScriptableObjects
      - [1. AudioClipRefsSO.cs](README.md#1-audiocliprefssocs)
      - [2. BurningRecipeSO.cs](README.md#2-burningrecipesocs)
