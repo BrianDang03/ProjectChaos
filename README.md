@@ -37,6 +37,8 @@
       - [9. PlateIconsSingleUI.cs](README.md#9-plateiconssingleuics)
       - [10. PlateIconUI.cs](README.md#10-plateiconuics)
       - [11. ProgressBarUI.cs](README.md#11-progressbaruics)
+      - [12. StoveBurnWarningUI.cs](README.md#12-stoveburnwarningcs)
+      - [13. TutorialUI.cs](READEME.md#13-tutorialUIcs)
 ---
 # Scripts
 ---
@@ -2489,3 +2491,166 @@ public class ProgressBarUI : MonoBehaviour
 ```
 
 ---
+### [12. StoveBurnWarningUI.cs](README.md#1-scripts)
+
+#### Description
+This script manages the warning UI for the stove counter, displaying a warning when the progress of frying a plate approaches the burning threshold. It listens to the progress changed event of the stove counter and shows or hides the warning UI based on the progress value.
+
+#### Fields
+- `[SerializeField] private StoveCounter stoveCounter`: Reference to the stove counter component.
+
+#### Methods
+- `private void Start()`: Unity lifecycle method called before the first frame update. Subscribes to the progress changed event of the stove counter and hides the warning UI.
+- `private void StoveCounter_OnProgressChanged(object sender, IHasProgress.OnProgressChangedEventArgs e)`: Event handler method called when the progress of the stove counter changes. Determines whether to show or hide the warning UI based on the progress value.
+- `private void Show()`: Shows the warning UI by setting its GameObject active.
+- `private void Hide()`: Hides the warning UI by setting its GameObject inactive.
+
+#### Usage
+This script is attached to a GameObject representing the warning UI for the stove counter in the game scene. It dynamically displays a warning when the progress of frying a plate approaches the burning threshold, providing feedback to the player about the state of the cooking process.
+
+#### Notes
+- The StoveBurnWarningUI enhances player awareness by visually indicating when a plate is close to burning during the cooking process.
+- It complements the stove counter functionality by providing timely warnings to prevent burning and maintain gameplay balance.
+
+#### Code
+```
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class StoveBurnWarningUI : MonoBehaviour
+{
+    [SerializeField] private StoveCounter stoveCounter;
+
+    private void Start()
+    {
+        stoveCounter.OnProgressChanged += StoveCounter_OnProgressChanged;
+        Hide();
+    }
+
+    private void StoveCounter_OnProgressChanged(object sender, IHasProgress.OnProgressChangedEventArgs e)
+    {
+        float burnShowProgressAmount = .5f;
+        bool show = stoveCounter.IsFried() && e.progressNormalized >= burnShowProgressAmount;
+
+        if (show)
+        {
+            Show();
+        }
+        else
+        {
+            Hide();
+        }
+    }
+
+    private void Show()
+    {
+        gameObject.SetActive(true);
+    }
+
+    private void Hide()
+    {
+        gameObject.SetActive(false);
+    }
+}
+```
+
+---
+### [13. TutorialUI.cs](README.md#1-scripts)
+
+#### Description
+This script manages the tutorial UI, displaying key bindings for player actions to assist players in learning the game controls. It listens to events related to game state changes and binding rebinds and updates the UI accordingly.
+
+#### Fields
+- `[SerializeField] private TextMeshProUGUI moveUpKeyText`: Text element displaying the key binding for moving up.
+- `[SerializeField] private TextMeshProUGUI moveDownKeyText`: Text element displaying the key binding for moving down.
+- `[SerializeField] private TextMeshProUGUI moveLeftKeyText`: Text element displaying the key binding for moving left.
+- `[SerializeField] private TextMeshProUGUI moveRightKeyText`: Text element displaying the key binding for moving right.
+- `[SerializeField] private TextMeshProUGUI interactKeyText`: Text element displaying the key binding for interacting.
+- `[SerializeField] private TextMeshProUGUI interactAlternateKeyText`: Text element displaying the key binding for alternate interaction.
+- `[SerializeField] private TextMeshProUGUI gamepadInteactKeyText`: Text element displaying the key binding for gamepad interaction.
+- `[SerializeField] private TextMeshProUGUI gamepadInteractAlternateKeyText`: Text element displaying the key binding for alternate gamepad interaction.
+
+#### Methods
+- `private void Start()`: Unity lifecycle method called before the first frame update. Subscribes to events related to binding rebinds and game state changes, updates the UI, and shows the tutorial UI.
+- `private void GameInput_OnBindingRebind(object sender, System.EventArgs e)`: Event handler method called when a binding is rebound. Updates the visual representation of the key bindings.
+- `private void KitchenGameManager_OnStateChanged(object sender, System.EventArgs e)`: Event handler method called when the game state changes. Hides the tutorial UI when the countdown to start is active.
+- `private void UpdateVisual()`: Updates the visual representation of the key bindings based on the current bindings.
+- `private void Show()`: Shows the tutorial UI by setting its GameObject active.
+- `private void Hide()`: Hides the tutorial UI by setting its GameObject inactive.
+
+#### Usage
+This script is attached to a GameObject representing the tutorial UI in the game scene. It dynamically displays key bindings for player actions to help players learn the game controls.
+
+#### Notes
+- The TutorialUI provides a helpful guide for players to learn and remember the game controls, improving the overall user experience.
+- It updates in real-time to reflect any changes made to the key bindings, ensuring accuracy and relevance to the current configuration.
+
+#### Code
+```
+using System.Collections;
+using System.Collections.Generic;
+using TMPro;
+using UnityEngine;
+
+public class TutorialUI : MonoBehaviour
+{
+    [SerializeField] private TextMeshProUGUI moveUpKeyText;
+    [SerializeField] private TextMeshProUGUI moveDownKeyText;
+    [SerializeField] private TextMeshProUGUI moveLeftKeyText;
+    [SerializeField] private TextMeshProUGUI moveRightKeyText;
+    [SerializeField] private TextMeshProUGUI interactKeyText;
+    [SerializeField] private TextMeshProUGUI interactAlternateKeyText;
+    [SerializeField] private TextMeshProUGUI gamepadInteactKeyText;
+    [SerializeField] private TextMeshProUGUI gamepadInteractAlternateKeyText;
+
+    private void Start()
+    {
+        GameInput.Instance.OnBindingRebind += GameInput_OnBindingRebind;
+        KitchenGameManager.Instance.OnStateChanged += KitchenGameManager_OnStateChanged;
+        UpdateVisual();
+        Show();
+    }
+
+    private void GameInput_OnBindingRebind(object sender, System.EventArgs e)
+    {
+        UpdateVisual();
+    }
+
+    private void KitchenGameManager_OnStateChanged(object sender, System.EventArgs e)
+    {
+        if (KitchenGameManager.Instance.IsCountdownToStartActive())
+        {
+            Hide();
+        }
+    }
+
+    private void UpdateVisual()
+    {
+        moveUpKeyText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Move_Up);
+        moveDownKeyText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Move_Down);
+        moveLeftKeyText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Move_Left);
+        moveRightKeyText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Move_Right);
+        interactKeyText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Interact);
+        interactAlternateKeyText.text = GameInput.Instance.GetBindingText(GameInput.Binding.InteractAlternate);
+        gamepadInteactKeyText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Gamepad_Interact);
+        gamepadInteractAlternateKeyText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Gamepad_InteractAlternate);
+
+    }
+
+    private void Show()
+    {
+        gameObject.SetActive(true);
+    }
+
+    private void Hide()
+    {
+        gameObject.SetActive(false);
+    }
+    
+
+}
+```
+
+
+
