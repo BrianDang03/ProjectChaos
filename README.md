@@ -28,7 +28,7 @@
       - [1. KitchenObject.cs](README.md#1-kitchenobjectcs)
    - LoadScreen
      - [1. Loader.cs](README.md#1-loadercs)
-     - [2. LoaderCallback.cs](README.md#1-loadercallbackcs)
+     - [2. LoaderCallback.cs](README.md#2-loadercallbackcs)
    - Managers
      - [1. DeliveryManager.cs](README.md#1-deliverymanagercs)
      - [2. KitchenGameManager.cs](README.md#2-kitchengamemanagercs)
