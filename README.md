@@ -26,6 +26,9 @@
      - [2. IKitchenObjectParent.cs](README.md#2-ikitchenobjectparentcs)
    - KitchenObject
       - [1. KitchenObject.cs](README.md#1-kitchenobjectcs)
+   - LoadScreen
+     - [1. Loader.cs](README.md#1-loadercs)
+     - [2. LoaderCallback.cs](README.md#1-loadercallbackcs) 
    - ScriptableObjects
      - [1. AudioClipRefsSO.cs](README.md#1-audiocliprefssocs)
      - [2. BurningRecipeSO.cs](README.md#2-burningrecipesocs)
