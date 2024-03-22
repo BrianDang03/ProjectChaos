@@ -37,7 +37,7 @@
       - [9. PlateIconsSingleUI.cs](README.md#9-plateiconssingleuics)
       - [10. PlateIconUI.cs](README.md#10-plateiconuics)
       - [11. ProgressBarUI.cs](README.md#11-progressbaruics)
-      - [12. StoveBurnWarningUI.cs](README.md#12-stoveburnwarningcs)
+      - [12. StoveBurnWarningUI.cs](README.md#12-stoveburnwarninguics)
       - [13. TutorialUI.cs](READEME.md#13-tutorialuics)
 ---
 # Scripts
