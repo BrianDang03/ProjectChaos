@@ -3,6 +3,8 @@
 ## Table of Contents
 
 ### 1. Scripts
+   - Camera
+     - [1. LookAtCamera.cs](README.md#1-lookatcameracs) 
    - Counters
      - [1. BaseCounter.cs](README.md#1-basecountercs)
      - [2. ClearConter.cs](README.md#2-clearcountercs)
@@ -41,6 +43,67 @@
       - [13. TutorialUI.cs](README.md#13-tutorialuics)
 ---
 # Scripts
+---
+## Camera
+
+### [1. LookAtCamera.cs](README.md#1-scripts)
+
+#### Description
+This script provides functionality to make an object look at the camera or align with the camera's forward direction. It offers different modes to achieve this behavior, including looking directly at the camera, looking at the camera with inverted orientation, aligning with the camera's forward direction, and aligning with the inverted camera's forward direction.
+
+#### Fields
+- `[SerializeField] private Mode mode`: Enum specifying the mode of operation for the LookAtCamera script.
+
+#### Methods
+- `private void LateUpdate()`: Unity lifecycle method called once per frame after all Update methods have been called. Switches between different modes to make the object look at or align with the camera based on the selected mode.
+
+#### Usage
+This script is attached to a GameObject in the scene that needs to dynamically adjust its orientation relative to the camera. By specifying different modes, developers can achieve various effects such as having objects always face the camera or aligning with the camera's direction.
+
+#### Notes
+- The LookAtCamera script is useful for creating dynamic and immersive experiences where objects need to maintain visual contact with the camera or align with its orientation.
+- Different modes offer flexibility in achieving desired visual effects, such as providing options to invert the orientation or align with the camera's forward direction.
+
+#### Code
+```
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class LookAtCamera : MonoBehaviour
+{
+    private enum Mode
+    {
+        LookAt,
+        LookAtInverted,
+        CameraForward,
+        CameraForwardInverted,
+    }
+
+    [SerializeField] private Mode mode;
+
+    private void LateUpdate()
+    {
+        switch (mode)
+        {
+            case Mode.LookAt:
+                transform.LookAt(Camera.main.transform);
+                break;
+            case Mode.LookAtInverted:
+                Vector3 dirFromCamer = transform.position - Camera.main.transform.position;
+                transform.LookAt(transform.position + dirFromCamer);
+                break;
+            case Mode.CameraForward:
+                transform.forward = Camera.main.transform.forward;
+                break;
+            case Mode.CameraForwardInverted:
+                transform.forward = -Camera.main.transform.forward;
+                break;
+        }
+    }
+}
+```
+
 ---
 ## Counters
 
