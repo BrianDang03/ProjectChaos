@@ -1564,6 +1564,78 @@ public class GameInput : MonoBehaviour
 ```
 
 ---
+## Interfaces
+
+### [1. IHasProgress.cs](README.md#1-scripts)
+
+#### Description
+The `IHasProgress` interface defines functionality for objects that have progress, allowing them to notify listeners when their progress changes. It includes an event for handling progress changes, which provides information about the current progress normalized between 0 and 1.
+
+#### Events
+- `public event EventHandler<OnProgressChangedEventArgs> OnProgressChanged`: Event triggered when the progress of an object implementing the interface changes. The event handler receives an argument containing the normalized progress value.
+
+#### Usage
+Implementing the `IHasProgress` interface in a class allows that class to notify other systems or objects when its progress changes. This is useful for various game elements such as loading bars, timers, or progress indicators.
+
+#### Notes
+- The `OnProgressChanged` event uses the `OnProgressChangedEventArgs` class to pass information about the progress change.
+- By subscribing to the `OnProgressChanged` event, other classes can react to changes in the progress of objects implementing the `IHasProgress` interface.
+
+
+#### Code
+```
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public interface IHasProgress
+{
+    public event EventHandler<OnProgressChangedEventArgs> OnProgressChanged;
+    public class OnProgressChangedEventArgs : EventArgs
+    {
+        public float progressNormalized;
+    }
+}
+```
+
+---
+### [2. IKitchenObjectParent.cs](README.md#1-scripts)
+
+#### Description
+The `IKitchenObjectParent` interface defines methods for objects that can act as parents for kitchen objects in the game environment. It provides functionality for setting, retrieving, and managing kitchen objects within a parent object.
+
+#### Methods
+- `public Transform GetKitchenObjectFollowTransform()`: Retrieves the transform where kitchen objects should follow when placed within the parent.
+- `public void SetKitchenObject(KitchenObject kitchenObject)`: Sets the specified kitchen object as a child of the parent object.
+- `public KitchenObject GetKitchenObject()`: Retrieves the currently assigned kitchen object from the parent.
+- `public void ClearKitchenObject()`: Clears the currently assigned kitchen object from the parent.
+- `public bool HasKitchenObject()`: Checks whether the parent object currently has a kitchen object assigned to it.
+
+#### Usage
+Implementing the `IKitchenObjectParent` interface in a class allows that class to serve as a container or holder for kitchen objects. It provides methods for managing the interaction between kitchen objects and their parent objects, such as placing, retrieving, or clearing kitchen objects.
+
+#### Code
+```
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public interface IKitchenObjectParent
+{
+    public Transform GetKitchenObjectFollowTransform();
+
+    public void SetKitchenObject(KitchenObject kitchenObject);
+
+    public KitchenObject GetKitchenObject();
+
+    public void ClearKitchenObject();
+
+    public bool HasKitchenObject();
+}
+```
+
+---
 ## ScriptableObjects
 ### [1. AudioClipRefsSO.cs](README.md#1-scripts)
 
