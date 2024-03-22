@@ -1948,28 +1948,29 @@ public class GamePlayingClockUI : MonoBehaviour
 ### [6. GameStartCountdownUI.cs](README.md#1-scripts)
 
 #### Description
-This script manages the user interface (UI) for displaying a countdown timer before the start of the game. It updates the countdown text based on the remaining time until the game starts.
-
-#### Inherits from
-- `MonoBehaviour`
+This script manages the countdown UI displayed at the start of the game. It updates the countdown text based on the countdown timer from the `KitchenGameManager` and triggers animations for each countdown number change. Additionally, it plays a countdown sound effect when the countdown number changes.
 
 #### Fields
-- `public TextMeshProUGUI countdownText`: TextMeshProUGUI component representing the countdown text.
+- `private const string NUMBER_POPUP = "NumberPopup"`: Constant string representing the trigger name for the number popup animation in the animator.
+- `[SerializeField] private TextMeshProUGUI countdownText`: Reference to the TextMeshProUGUI component displaying the countdown text.
+- `private Animator animator`: Reference to the Animator component for triggering countdown animations.
+- `private int previousCountDownNumeber`: Variable to store the previous countdown number.
 
 #### Methods
-- `void Start()`: Called before the first frame update. Subscribes to the `OnStateChanged` event triggered by the `KitchenGameManager`.
-- `void Update()`: Called once per frame. Updates the countdown text with the remaining time until the game starts.
-- `void KitchenGameManager_OnStateChanged(object sender, EventArgs e)`: Event handler for the `OnStateChanged` event triggered by the `KitchenGameManager`.
-- `void Show()`: Displays the countdown UI.
-- `void Hide()`: Hides the countdown UI.
+- `private void Awake()`: Unity lifecycle method called when the script instance is being loaded. Initializes the animator reference.
+- `private void Start()`: Unity lifecycle method called before the first frame update. Subscribes to game state change events and hides the countdown UI initially.
+- `private void Update()`: Unity lifecycle method called once per frame. Updates the countdown text based on the countdown timer from `KitchenGameManager` and triggers animations for countdown number changes.
+- `private void KitchenGameManager_OnStateChanged(object sender, EventArgs e)`: Event handler method called when the game state changes. Shows or hides the countdown UI based on the game state.
+- `private void Show()`: Shows the countdown UI by setting its GameObject active.
+- `private void Hide()`: Hides the countdown UI by setting its GameObject inactive.
 
 #### Usage
-This script is attached to a GameObject in the scene representing the countdown UI. It requires a TextMeshProUGUI component to display the countdown text. During the countdown to the start of the game, the `Update` method continuously updates the countdown text based on the remaining time obtained from the `KitchenGameManager`. The countdown UI is shown or hidden based on the state of the countdown to start as indicated by the `KitchenGameManager`.
+This script is attached to a GameObject representing the countdown UI in the game scene. It dynamically updates the countdown text based on the countdown timer provided by `KitchenGameManager` and triggers animations for countdown number changes. The countdown UI is displayed at the start of the game and hidden when the game starts playing.
 
 #### Notes
-- The `Start` method subscribes to the `OnStateChanged` event triggered by the `KitchenGameManager`. When the game's state changes to the countdown to start active, the countdown UI is shown.
-- The `Update` method retrieves the remaining time until the game starts from the `KitchenGameManager` and updates the countdown text accordingly.
-- The `KitchenGameManager_OnStateChanged` method toggles the visibility of the countdown UI based on the state of the countdown to start as indicated by the `KitchenGameManager`.
+- The countdown UI enhances the game's visual presentation by providing players with a clear indication of when the game will start.
+- It utilizes animations and sound effects to create an engaging countdown experience for players.
+
 
 #### Code
 ```
@@ -1982,7 +1983,15 @@ using UnityEngine;
 
 public class GameStartCountdownUI : MonoBehaviour
 {
+    private const string NUMBER_POPUP = "NumberPopup";
     [SerializeField] private TextMeshProUGUI countdownText;
+    private Animator animator;
+    private int previousCountDownNumeber;
+
+    private void Awake()
+    {
+        animator = GetComponent<Animator>();
+    }
 
     private void Start()
     {
@@ -1993,7 +2002,15 @@ public class GameStartCountdownUI : MonoBehaviour
 
     private void Update()
     {
-        countdownText.text = Mathf.Ceil(KitchenGameManager.Instance.GetCountdownToStatTimer()).ToString();
+        int countDownNumber = Mathf.CeilToInt(KitchenGameManager.Instance.GetCountdownToStatTimer());
+        countdownText.text = countDownNumber.ToString();
+
+        if (previousCountDownNumeber != countDownNumber)
+        {
+            previousCountDownNumeber = countDownNumber;
+            animator.SetTrigger(NUMBER_POPUP);
+            SoundManager.Instance.PlayCountdownSound();
+        }
     }
 
     private void KitchenGameManager_OnStateChanged(object sender, EventArgs e)
